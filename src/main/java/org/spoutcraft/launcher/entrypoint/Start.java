@@ -26,9 +26,11 @@
  */
 package org.spoutcraft.launcher.entrypoint;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -51,6 +53,7 @@ import org.spoutcraft.launcher.yml.YAMLProcessor;
 
 public class Start {
 	private static final ObjectMapper mapper = new ObjectMapper();
+
 	public static void main(String[] args) {
 		try {
 			launch(args);
@@ -59,7 +62,7 @@ public class Start {
 		}
 	}
 
-	private static void launch(String[] args) throws Exception{
+	private static void launch(String[] args) throws Exception {
 		// Text for local build (not official build)
 		if (SpoutcraftLauncher.getLauncherBuild().equals("0")) {
 			SpoutcraftLauncher.main(args);
@@ -67,10 +70,11 @@ public class Start {
 		}
 		// Test for exe relaunch
 		SpoutcraftLauncher.setupLogger().info("Args: " + Arrays.toString(args));
-		if (args.length > 0 && (args[0].equals("-Mover") || args[0].equals("-Launcher"))) {
+		if (args.length > 0
+				&& (args[0].equals("-Mover") || args[0].equals("-Launcher"))) {
 			String[] argsCopy = new String[args.length - 1];
 			for (int i = 1; i < args.length; i++) {
-				argsCopy[i-1] = args[i];
+				argsCopy[i - 1] = args[i];
 			}
 			if (args[0].equals("-Mover")) {
 				Mover.main(argsCopy, true);
@@ -84,14 +88,16 @@ public class Start {
 
 		YAMLProcessor settings = SpoutcraftLauncher.setupSettings();
 		if (settings == null) {
-			throw new NullPointerException("The YAMLProcessor object was null for settings.");
+			throw new NullPointerException(
+					"The YAMLProcessor object was null for settings.");
 		}
 		Settings.setYAML(settings);
 
 		int version = Integer.parseInt(SpoutcraftLauncher.getLauncherBuild());
 		int latest = getLatestLauncherBuild();
 		if (version < latest) {
-			File codeSource = new File(Start.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+			File codeSource = new File(Start.class.getProtectionDomain()
+					.getCodeSource().getLocation().getPath());
 			File temp;
 			if (codeSource.getName().endsWith(".exe")) {
 				temp = new File(Utils.getWorkingDirectory(), "temp.exe");
@@ -100,12 +106,15 @@ public class Start {
 			}
 
 			try {
-				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+				UIManager.setLookAndFeel(UIManager
+						.getSystemLookAndFeelClassName());
 			} catch (Exception e) {
 			}
 
 			ProgressSplashScreen splash = new ProgressSplashScreen();
-			Download download = new Download(RestAPI.getLauncherDownloadURL(Settings.getLauncherChannel(), !codeSource.getName().endsWith(".exe")), temp.getPath());
+			Download download = new Download(RestAPI.getLauncherDownloadURL(
+					Settings.getLauncherChannel(), !codeSource.getName()
+							.endsWith(".exe")), temp.getPath());
 			download.setListener(new LauncherDownloadListener(splash));
 			download.run();
 
@@ -144,12 +153,17 @@ public class Start {
 		String url = RestAPI.getLauncherURL(Settings.getLauncherChannel());
 		InputStream stream = null;
 		try {
-			URLConnection conn = (new URL(url)).openConnection();
-			stream = conn.getInputStream();
-			Project project = mapper.readValue(stream, Project.class);
-			return project.getBuild();
+			// URLConnection conn = (new URL(url)).openConnection();
+			// stream = conn.getInputStream();
+			/* Project project = mapper.readValue(stream, Project.class); */
+			// return stream.();
+			BufferedReader localBufferedReader = new BufferedReader(
+					new InputStreamReader(new URL(url).openStream()));
+
+			return Integer.parseInt(localBufferedReader.readLine());
 		} catch (IOException e) {
-			throw new RestfulAPIException("Error accessing URL [" + url + "]", e);
+			throw new RestfulAPIException("Error accessing URL [" + url + "]",
+					e);
 		} finally {
 			IOUtils.closeQuietly(stream);
 		}
@@ -162,7 +176,8 @@ public class Start {
 			OperatingSystem os = OperatingSystem.getOS();
 			if (os.isUnix() || os.isMac()) {
 				try {
-					FileUtils.copyDirectory(brokenSpoutcraftDir, correctSpoutcraftDir);
+					FileUtils.copyDirectory(brokenSpoutcraftDir,
+							correctSpoutcraftDir);
 					FileUtils.deleteDirectory(brokenSpoutcraftDir);
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -173,12 +188,13 @@ public class Start {
 
 	private static class LauncherDownloadListener implements DownloadListener {
 		private final ProgressSplashScreen screen;
+
 		LauncherDownloadListener(ProgressSplashScreen screen) {
 			this.screen = screen;
 		}
 
 		public void stateChanged(String text, float progress) {
-			screen.updateProgress((int)progress);
+			screen.updateProgress((int) progress);
 		}
 	}
 }

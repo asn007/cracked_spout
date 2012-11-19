@@ -48,9 +48,10 @@ public class RestAPI {
 	}
 
 	public static String getLauncherURL(Channel channel) {
-		/*if (channel != Channel.CUSTOM) {
+		if (channel != Channel.CUSTOM) {
 			return INFO_URL + channel.toString() + "/" + "spoutcraftlauncher";
-		}*/return "https://raw.github.com/asn007/cracked_spout/master/fakerestapi";
+		}
+		throw new IllegalArgumentException("No download URL available for custom channel builds");
 	}
 	
 	public static String getLauncherDownloadURL(Channel channel, boolean jar) {

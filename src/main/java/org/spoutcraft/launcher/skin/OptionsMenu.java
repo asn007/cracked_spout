@@ -242,6 +242,7 @@ public class OptionsMenu extends JDialog implements ActionListener {
 		return Channel.getType(selection);
 	}
 
+	@SuppressWarnings("restriction")
 	private void populateMemory(JComboBox memory) {
 		long maxMemory = 1024;
 		String architecture = System.getProperty("sun.arch.data.model", "32");

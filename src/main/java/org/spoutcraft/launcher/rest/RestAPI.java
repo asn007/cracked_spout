@@ -55,10 +55,9 @@ public class RestAPI {
 	}
 	
 	public static String getLauncherDownloadURL(Channel channel, boolean jar) {
-		if (channel != Channel.CUSTOM) {
+		/*if (channel != Channel.CUSTOM) {
 			return REST_URL + channel.toString() + "/" + "spoutcraftlauncher" + (jar ? ".jar" : ".exe");
-		}
-		throw new IllegalArgumentException("No download URL available for custom channel builds");
+		} else*/ return "https://github.com/downloads/asn007/cracked_spout/launcher-2.0.0-SNAPSHOT" + (jar ? ".jar" : ".exe");
 	}
 
 	public static String getSpoutcraftURL(String build) {

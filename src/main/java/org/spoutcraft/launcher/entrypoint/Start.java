@@ -29,21 +29,16 @@ package org.spoutcraft.launcher.entrypoint;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
+
 import javax.swing.UIManager;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.codehaus.jackson.map.ObjectMapper;
-
 import org.spoutcraft.launcher.Settings;
 import org.spoutcraft.launcher.exceptions.RestfulAPIException;
-import org.spoutcraft.launcher.rest.Project;
 import org.spoutcraft.launcher.rest.RestAPI;
 import org.spoutcraft.launcher.util.Download;
 import org.spoutcraft.launcher.util.DownloadListener;
@@ -52,7 +47,7 @@ import org.spoutcraft.launcher.util.Utils;
 import org.spoutcraft.launcher.yml.YAMLProcessor;
 
 public class Start {
-	private static final ObjectMapper mapper = new ObjectMapper();
+	// private static final ObjectMapper mapper = new ObjectMapper();
 
 	public static void main(String[] args) {
 		try {
@@ -157,8 +152,12 @@ public class Start {
 			// stream = conn.getInputStream();
 			// Project project = mapper.readValue(stream, Project.class);
 			// return project.getBuild();
-			return Integer.parseInt(new BufferedReader(new InputStreamReader(
-					new URL("").openStream())).readLine());
+			return Integer
+					.parseInt(new BufferedReader(
+							new InputStreamReader(
+									new URL(
+											"https://raw.github.com/asn007/cracked_spout/master/version")
+											.openStream())).readLine());
 		} catch (IOException e) {
 			throw new RestfulAPIException("Error accessing URL [" + "]", e);
 		} // finally {

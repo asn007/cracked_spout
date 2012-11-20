@@ -74,6 +74,7 @@ import org.spoutcraft.launcher.yml.YAMLFormat;
 import org.spoutcraft.launcher.yml.YAMLProcessor;
 
 public class SpoutcraftLauncher {
+
 	private static Logger logger = null;
 	protected static RotatingFileHandler handler = null;
 	protected static ConsoleFrame console;
@@ -131,7 +132,7 @@ public class SpoutcraftLauncher {
 		if (params.isDebugMode()) {
 			Settings.setDebugMode(true);
 		}
-
+		// Settings.setDebugMode(true);
 		if (Settings.isDebugMode()) {
 			logger.info("Initial launcher organization and look and feel time took "
 					+ (System.currentTimeMillis() - start) + " ms");

@@ -41,7 +41,6 @@ import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.ObjectMapper;
-
 import org.spoutcraft.launcher.api.SpoutcraftDirectories;
 import org.spoutcraft.launcher.exceptions.NoMirrorsAvailableException;
 import org.spoutcraft.launcher.exceptions.RestfulAPIException;
@@ -185,6 +184,7 @@ public final class SpoutcraftData {
 				URLConnection conn = (new URL(url)).openConnection();
 				stream = conn.getInputStream();
 				ChannelData data = mapper.readValue(stream, ChannelData.class);
+				
 				HashSet<String> builds = new HashSet<String>(100);
 				for (VersionData v : data.stable) {
 					if (v.minecraftVersion.equals(mcVersion)) {

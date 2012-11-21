@@ -367,7 +367,7 @@ public class SpoutcraftLauncher {
 	}
 
 	public static String getLauncherBuild() {
-		String build = "0";
+		String build = "1";
 		try {
 			build = IOUtils.toString(
 					SpoutcraftLauncher.class.getResource(

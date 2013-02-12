@@ -31,9 +31,10 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import javax.swing.JProgressBar;
 
-public class LiteProgressBar extends JProgressBar implements Transparent{
+public class LiteProgressBar extends JProgressBar implements Transparent {
 	private static final long serialVersionUID = 1L;
-	private final TransparentComponent transparency = new TransparentComponent(this, false);
+	private final TransparentComponent transparency = new TransparentComponent(
+			this, false);
 
 	public LiteProgressBar() {
 		setFocusable(false);
@@ -42,24 +43,21 @@ public class LiteProgressBar extends JProgressBar implements Transparent{
 
 	@Override
 	public void paint(Graphics g) {
-		Graphics2D g2d = (Graphics2D) transparency.setup(g);
+		Graphics2D g2d = (Graphics2D) g;
 
 		// Draw bar
 		g2d.setColor(Color.WHITE);
 		g2d.fillRect(0, 0, getWidth(), getHeight());
 
 		// Draw progress
-		g2d.setColor(Color.BLUE);
+		g2d.setColor(Color.decode("#C20000"));
 		int x = (int) (getWidth() * getPercentComplete());
 		g2d.fillRect(0, 0, x, getHeight());
-
-		transparency.cleanup(g2d);
-		g2d = (Graphics2D) g;
-
 		if (this.isStringPainted() && getString().length() > 0) {
 			g2d.setFont(getFont());
-			
-			final int startWidth = (getWidth() - g2d.getFontMetrics().stringWidth(getString())) / 2;
+
+			final int startWidth = (getWidth() - g2d.getFontMetrics()
+					.stringWidth(getString())) / 2;
 			String white = "";
 			int whiteWidth = 0;
 			int chars = 0;
@@ -79,7 +77,8 @@ public class LiteProgressBar extends JProgressBar implements Transparent{
 			g2d.setColor(Color.WHITE);
 			g2d.drawString(white, startWidth, height * 1.5F);
 			g2d.setColor(Color.BLACK);
-			g2d.drawString(this.getString().substring(chars), whiteWidth + startWidth, height * 1.5F);
+			g2d.drawString(this.getString().substring(chars), whiteWidth
+					+ startWidth, height * 1.5F);
 		}
 
 		transparency.cleanup(g2d);

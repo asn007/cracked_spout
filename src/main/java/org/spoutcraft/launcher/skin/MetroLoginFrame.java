@@ -87,7 +87,7 @@ public class MetroLoginFrame extends LoginFrame implements ActionListener,
 	}
 
 	private void initComponents() {
-		Font minecraft = getMinecraftFont(12);
+		Font minecraft = getMinecraftFont(14);
 
 		int xShift = 0;
 		int yShift = 0;
@@ -97,19 +97,19 @@ public class MetroLoginFrame extends LoginFrame implements ActionListener,
 
 		// Setup username box
 		name = new LiteTextBox(this, "Логин");
-		name.setBounds(622 + xShift, 426 + yShift, 140, 24);
+		name.setBounds(470 + xShift, 426 + yShift, 256, 24);
 		name.setFont(minecraft);
 		name.addKeyListener(this);
 
 		// Setup password box
 		pass = new LitePasswordBox(this, "Пароль (необязательно)");
-		pass.setBounds(622 + xShift, 455 + yShift, 140, 24);
+		pass.setBounds(470 + xShift, 455 + yShift, 256, 24);
 		pass.setFont(minecraft);
 		pass.addKeyListener(this);
 
 		// Setup remember checkbox
-		remember = new JCheckBox("Запомнить меня");
-		remember.setBounds(775 + xShift, 455 + yShift, 110, 24);
+		remember = new JCheckBox("Запомнить");
+		remember.setBounds(775 - 40 + xShift, 455 + yShift, 130, 24);
 		remember.setFont(minecraft);
 		remember.setOpaque(false);
 		remember.setBorderPainted(false);
@@ -120,7 +120,7 @@ public class MetroLoginFrame extends LoginFrame implements ActionListener,
 
 		// Setup login button
 		login = new LiteButton("Войти");
-		login.setBounds(775 + xShift, 426 + yShift, 92, 24);
+		login.setBounds(775 - 40 + xShift, 426 + yShift, 113, 24);
 		login.setFont(minecraft);
 		login.setActionCommand(LOGIN_ACTION);
 		login.addActionListener(this);

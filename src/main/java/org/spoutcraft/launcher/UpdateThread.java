@@ -1,7 +1,7 @@
 /*
  * This file is part of Spoutcraft.
  *
- * Copyright (c) 2011-2012, SpoutDev <http://www.spout.org/>
+ * Copyright (c) 2011-2012, Spout LLC <http://www.spout.org/>
  * Spoutcraft is licensed under the SpoutDev License Version 1.
  *
  * Spoutcraft is free software: you can redistribute it and/or modify
@@ -108,6 +108,9 @@ public class UpdateThread extends Thread {
 
 	private void runTasks() throws IOException{
 		while (!valid.get()) {
+			
+			
+			
 			boolean minecraftUpdate = isMinecraftUpdateAvailable(build);
 			boolean spoutcraftUpdate = minecraftUpdate || isSpoutcraftUpdateAvailable(build);
 
@@ -314,13 +317,13 @@ public class UpdateThread extends Thread {
 		int steps = libraries.size() + 2;
 		float progress = 100F;
 
-		stateChanged("Проверяю обновления SpoutCraft...", progress / steps);
+		stateChanged("Checking for Spoutcraft update...", progress / steps);
 		progress += 100F;
 		File spoutcraft = new File(Launcher.getGameUpdater().getBinDir(), "spoutcraft.jar");
 		if (!spoutcraft.exists() || !build.getMD5().equalsIgnoreCase(MD5Utils.getMD5(spoutcraft))) {
 			return true;
 		}
-		stateChanged("Проверяю обновления SpoutCraft...", progress / steps);
+		stateChanged("Checking for Spoutcraft update...", progress / steps);
 		progress += 100F;
 		File libDir = new File(Launcher.getGameUpdater().getBinDir(), "lib");
 		libDir.mkdir();
@@ -330,7 +333,7 @@ public class UpdateThread extends Thread {
 			if (!libraryFile.exists()) {
 				return true;
 			}
-			stateChanged("Проверяю обновления SpoutCraft...", progress / steps);
+			stateChanged("Checking for Spoutcraft update...", progress / steps);
 			progress += 100F;
 		}
 
@@ -342,7 +345,7 @@ public class UpdateThread extends Thread {
 		if (!Launcher.getGameUpdater().getBinDir().exists()) {
 			return true;
 		}
-		stateChanged("Проверяю обновления Minecraft...", 100F / steps);
+		stateChanged("Checking for Minecraft update...", 100F / steps);
 		File nativesDir = new File(Launcher.getGameUpdater().getBinDir(), "natives");
 		if (!nativesDir.exists()) {
 			return true;
@@ -351,29 +354,29 @@ public class UpdateThread extends Thread {
 		if (nativesDir.listFiles().length == 0) {
 			return true;
 		}
-		stateChanged("Проверяю обновления Minecraft...", 200F / steps);
+		stateChanged("Checking for Minecraft update...", 200F / steps);
 		File minecraft = new File(Launcher.getGameUpdater().getBinDir(), "minecraft.jar");
 		if (!minecraft.exists()) {
 			return true;
 		}
-		stateChanged("Проверяю обновления Minecraft...", 300F / steps);
+		stateChanged("Checking for Minecraft update...", 300F / steps);
 		File lib = new File(Launcher.getGameUpdater().getBinDir(), "jinput.jar");
 		if (!lib.exists()) {
 			return true;
 		}
-		stateChanged("Проверяю обновления Minecraft...", 400F / steps);
+		stateChanged("Checking for Minecraft update...", 400F / steps);
 		lib = new File(Launcher.getGameUpdater().getBinDir(), "lwjgl.jar");
 		if (!lib.exists()) {
 			return true;
 		}
-		stateChanged("Проверяю обновления Minecraft...", 500F / steps);
+		stateChanged("Checking for Minecraft update...", 500F / steps);
 		lib = new File(Launcher.getGameUpdater().getBinDir(), "lwjgl_util.jar");
 		if (!lib.exists()) {
 			return true;
 		}
-		stateChanged("Проверяю обновления Minecraft...", 600F / steps);
+		stateChanged("Checking for Minecraft update...", 600F / steps);
 		String installed = Settings.getInstalledMC();
-		stateChanged("Проверяю обновления Minecraft...", 700F / steps);
+		stateChanged("Checking for Minecraft update...", 700F / steps);
 		String required = build.getMinecraftVersion();
 		return installed == null || !installed.equals(required);
 	}
@@ -431,7 +434,7 @@ public class UpdateThread extends Thread {
 			e.printStackTrace();
 		}
 
-		stateChanged("Распаковка...", 0);
+		stateChanged("Extracting Files...", 0);
 
 		Settings.setInstalledMC(build.getMinecraftVersion());
 		Settings.getYAML().save();
@@ -500,7 +503,7 @@ public class UpdateThread extends Thread {
 			}
 		}
 
-		stateChanged("Поиск зеркал...", 0F);
+		stateChanged("Looking Up Mirrors...", 0F);
 
 		String url = build.getSpoutcraftURL();
 

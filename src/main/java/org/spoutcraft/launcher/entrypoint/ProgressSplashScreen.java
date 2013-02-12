@@ -1,7 +1,7 @@
 /*
  * This file is part of Spoutcraft.
  *
- * Copyright (c) 2011-2012, SpoutDev <http://www.spout.org/>
+ * Copyright (c) 2011-2012, Spout LLC <http://www.spout.org/>
  * Spoutcraft is licensed under the SpoutDev License Version 1.
  *
  * Spoutcraft is free software: you can redistribute it and/or modify
@@ -31,22 +31,18 @@ import java.awt.Toolkit;
 
 import javax.swing.JProgressBar;
 
-public class ProgressSplashScreen extends SplashScreen {
+public class ProgressSplashScreen extends SplashScreen{
 	private static final long serialVersionUID = 1L;
 	private JProgressBar progressBar = new JProgressBar();
 
 	public ProgressSplashScreen() {
-		super(
-				Toolkit.getDefaultToolkit()
-						.getImage(
-								SplashScreen.class
-										.getResource("/org/spoutcraft/launcher/resources/splash.png")));
+		super(Toolkit.getDefaultToolkit().getImage(SplashScreen.class.getResource("/org/spoutcraft/launcher/resources/splash.png")));
 
 		// Setup the progress bar
 		progressBar.setFont(new Font("Arial", Font.PLAIN, 11));
 		progressBar.setMaximum(100);
 		progressBar.setBounds(0, icon.getIconHeight(), icon.getIconWidth(), 20);
-		progressBar.setString("Загружается обновление лаунчера...");
+		progressBar.setString("Downloading launcher updates...");
 		getContentPane().add(progressBar);
 		setVisible(true);
 	}

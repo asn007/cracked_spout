@@ -1,7 +1,7 @@
 /*
  * This file is part of Spoutcraft.
  *
- * Copyright (c) 2011-2012, SpoutDev <http://www.spout.org/>
+ * Copyright (c) 2011-2012, Spout LLC <http://www.spout.org/>
  * Spoutcraft is licensed under the SpoutDev License Version 1.
  *
  * Spoutcraft is free software: you can redistribute it and/or modify
@@ -41,12 +41,13 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
+
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.CipherOutputStream;
@@ -68,22 +69,21 @@ import org.spoutcraft.launcher.Main;
 import org.spoutcraft.launcher.api.Event;
 import org.spoutcraft.launcher.api.Launcher;
 import org.spoutcraft.launcher.skin.ErrorDialog;
-import org.spoutcraft.launcher.skin.LegacyLoginFrame;
 import org.spoutcraft.launcher.util.Compatibility;
 import org.spoutcraft.launcher.util.DownloadListener;
 import org.spoutcraft.launcher.util.Utils;
 
 public abstract class LoginFrame extends JFrame implements DownloadListener {
 	private static final long serialVersionUID = 2L;
-	public static final URL spoutcraftIcon = LegacyLoginFrame.class
+	public static final URL spoutcraftIcon = LoginFrame.class
 			.getResource("/org/spoutcraft/launcher/resources/icon.png");
-	protected Map<String, UserPasswordInformation> usernames = new HashMap<String, UserPasswordInformation>();
+	protected Map<String, UserPasswordInformation> usernames = new LinkedHashMap<String, UserPasswordInformation>();
 	protected boolean offline = false;
 
 	public LoginFrame() {
 		readSavedUsernames();
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setTitle("Spoutcraft cracked by asn007");
+		setTitle("Spoutcraft");
 		setIconImage(Toolkit.getDefaultToolkit().getImage(spoutcraftIcon));
 	}
 
@@ -107,11 +107,11 @@ public abstract class LoginFrame extends JFrame implements DownloadListener {
 		for (String key : usernames.keySet()) {
 			if (key.equalsIgnoreCase(user)) {
 				UserPasswordInformation info = usernames.get(key);
-				return "http://cdn.spout.org/legacy/skin/" + info.username
-						+ ".png";
+				return "http://cdn.spout.org/game/vanilla/skin/"
+						+ info.username + ".png";
 			}
 		}
-		return "http://cdn.spout.org/legacy/skin/" + user + ".png";
+		return "http://cdn.spout.org/game/vanilla/skin/" + user + ".png";
 	}
 
 	public final String getUsername(String account) {
@@ -156,23 +156,29 @@ public abstract class LoginFrame extends JFrame implements DownloadListener {
 		return offline;
 	}
 
-	public final void doLogin(String user, LoginFrame f) {
-		if (!hasSavedPassword(user))
-			doLogin(user, null);
-		else
-			doLogin(user, getSavedPassword(user), f);
+	public final void doLogin(String user) {
+		/*
+		 * if (!hasSavedPassword(user)) { throw new NullPointerException(
+		 * "There is no saved password for the user '" + user + "'"); }
+		 */
+		doLogin(user, "");
 	}
 
-	public final void doLogin(String user, String pass, LoginFrame f) {
+	public final void doLogin(String user, String pass) {
+		if (pass == null) {
+			throw new NullPointerException(
+					"The password was null when logging in as user: '" + user
+							+ "'");
+		}
+
 		Launcher.getGameUpdater().setDownloadListener(this);
 
 		LoginWorker loginThread = new LoginWorker(this);
+		if (pass.equals(""))
+			loginThread.setPirate(true);
 		loginThread.setUser(user);
-		if (pass == null)
-			loginThread.setPass("");
-		else
-			loginThread.setPass(pass);
 
+		loginThread.setPass(pass);
 		loginThread.execute();
 	}
 
@@ -441,8 +447,7 @@ public abstract class LoginFrame extends JFrame implements DownloadListener {
 				"<html><body style=\""
 						+ style
 						+ "\">"
-						+ "Please download our newest launcher from <a href=\"http://get.spout.org/\">http://get.spout.org</a>"
-						+ "<br/>This launcher will continue to work for only a short time longer.</body></html>");
+						+ "Please download our newest launcher from <a href=\"http://get.spout.org/\">http://get.spout.org</a></body></html>");
 
 		ep.addHyperlinkListener(new HyperlinkListener() {
 			public void hyperlinkUpdate(HyperlinkEvent e) {
@@ -460,6 +465,8 @@ public abstract class LoginFrame extends JFrame implements DownloadListener {
 
 		JOptionPane.showMessageDialog(this, ep, "Outdated Launcher",
 				JOptionPane.WARNING_MESSAGE);
+		dispose();
+		System.exit(0);
 	}
 
 	protected static final class UserPasswordInformation {

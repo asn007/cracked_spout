@@ -1,7 +1,7 @@
 /*
  * This file is part of Spoutcraft.
  *
- * Copyright (c) 2011-2012, SpoutDev <http://www.spout.org/>
+ * Copyright (c) 2011-2012, Spout LLC <http://www.spout.org/>
  * Spoutcraft is licensed under the SpoutDev License Version 1.
  *
  * Spoutcraft is free software: you can redistribute it and/or modify
@@ -40,7 +40,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
@@ -98,19 +97,19 @@ public class MetroLoginFrame extends LoginFrame implements ActionListener,
 
 		// Setup username box
 		name = new LiteTextBox(this, "Логин");
-		name.setBounds(562 + xShift, 426 + yShift, 200, 24);
+		name.setBounds(622 + xShift, 426 + yShift, 140, 24);
 		name.setFont(minecraft);
 		name.addKeyListener(this);
 
 		// Setup password box
-		pass = new LitePasswordBox(this, "Пароль (не обязательно)");
-		pass.setBounds(562 + xShift, 455 + yShift, 200, 24);
+		pass = new LitePasswordBox(this, "Пароль (необязательно)");
+		pass.setBounds(622 + xShift, 455 + yShift, 140, 24);
 		pass.setFont(minecraft);
 		pass.addKeyListener(this);
 
 		// Setup remember checkbox
-		remember = new JCheckBox("Запомнить");
-		remember.setBounds(770 + xShift, 455 + yShift, 110, 24);
+		remember = new JCheckBox("Запомнить меня");
+		remember.setBounds(775 + xShift, 455 + yShift, 110, 24);
 		remember.setFont(minecraft);
 		remember.setOpaque(false);
 		remember.setBorderPainted(false);
@@ -120,8 +119,8 @@ public class MetroLoginFrame extends LoginFrame implements ActionListener,
 		remember.addKeyListener(this);
 
 		// Setup login button
-		login = new LiteButton("В игру!");
-		login.setBounds(770 + xShift, 426 + yShift, 92, 24);
+		login = new LiteButton("Войти");
+		login.setBounds(775 + xShift, 426 + yShift, 92, 24);
 		login.setFont(minecraft);
 		login.setActionCommand(LOGIN_ACTION);
 		login.addActionListener(this);
@@ -134,11 +133,11 @@ public class MetroLoginFrame extends LoginFrame implements ActionListener,
 
 		// Progress Bar
 		progressBar = new LiteProgressBar();
-		progressBar.setBounds(8, 150, 395, 23);
-		progressBar.setVisible(true);
+		progressBar.setBounds(8, 130, 395, 23);
+		progressBar.setVisible(false);
 		progressBar.setStringPainted(true);
 		progressBar.setOpaque(true);
-		progressBar.setTransparency(1F);
+		progressBar.setTransparency(0.70F);
 		progressBar.setHoverTransparency(0.70F);
 		progressBar.setFont(minecraft);
 
@@ -150,7 +149,7 @@ public class MetroLoginFrame extends LoginFrame implements ActionListener,
 			largerMinecraft = minecraft.deriveFont((float) 18);
 		}
 
-		HyperlinkJLabel home = new HyperlinkJLabel("Сайт",
+		HyperlinkJLabel home = new HyperlinkJLabel("Home",
 				"http://www.spout.org/");
 		home.setFont(largerMinecraft);
 		home.setBounds(545, 35, 65, 20);
@@ -160,7 +159,7 @@ public class MetroLoginFrame extends LoginFrame implements ActionListener,
 		home.setHoverTransparency(1F);
 
 		// Forums link
-		HyperlinkJLabel forums = new HyperlinkJLabel("Форум",
+		HyperlinkJLabel forums = new HyperlinkJLabel("Forums",
 				"http://forums.spout.org/");
 		forums.setFont(largerMinecraft);
 		forums.setBounds(625, 35, 90, 20);
@@ -170,7 +169,7 @@ public class MetroLoginFrame extends LoginFrame implements ActionListener,
 		forums.setHoverTransparency(1F);
 
 		// Issues link
-		HyperlinkJLabel issues = new HyperlinkJLabel("Помощь",
+		HyperlinkJLabel issues = new HyperlinkJLabel("Issues",
 				"http://spout.in/issues");
 		issues.setFont(largerMinecraft);
 		issues.setBounds(733, 35, 85, 20);
@@ -190,23 +189,24 @@ public class MetroLoginFrame extends LoginFrame implements ActionListener,
 		options.addActionListener(this);
 
 		// Steam button
-		JButton steam = new ImageHyperlinkButton("http://spout.in/steam");
-		steam.setToolTipText("Game with us on Steam");
+		JButton steam = new ImageHyperlinkButton(
+				"http://www.rubukkit.org/members/17933/");
+		steam.setToolTipText("Поставь лойсы на рубакките :3");
 		steam.setBounds(6, FRAME_HEIGHT - 62 + yShift, 28, 28);
-		setIcon(steam, "steam.png", 28);
+		setIcon(steam, "rubukkit.png", 28);
 
 		// Twitter button
 		JButton twitter = new ImageHyperlinkButton("http://twitter.com/_asn007");
-		twitter.setToolTipText("Подпишись на меня в твиттере.\nНу позязя :3");
+		twitter.setToolTipText("Ну и в твиттере зафоллови... Ты же няша :3");
 		twitter.setBounds(6 + 34 + xShift, FRAME_HEIGHT - 62 + yShift, 28, 28);
 		setIcon(twitter, "twitter.png", 28);
 
 		// Facebook button
-		JButton rubukkit = new ImageHyperlinkButton(
-				"http://www.rubukkit.org/members/dr-death.17933/");
-		rubukkit.setToolTipText("Профиль на рубакките. Будь няшкой, пролайкай пару сообщений :3");
-		rubukkit.setBounds(6, FRAME_HEIGHT - 62 + yShift, 28, 28);
-		setIcon(rubukkit, "rubukkit.png", 28);
+		JButton facebook = new ImageHyperlinkButton("http://spout.in/facebook");
+		facebook.setToolTipText("Like us on Facebook");
+		facebook.setBounds(6 + 34 * 3 + xShift, FRAME_HEIGHT - 62 + yShift, 28,
+				28);
+		setIcon(facebook, "facebook.png", 28);
 
 		// Google+ button
 		JButton gplus = new ImageHyperlinkButton("http://spout.in/gplus");
@@ -248,9 +248,9 @@ public class MetroLoginFrame extends LoginFrame implements ActionListener,
 		contentPane.add(pass);
 		contentPane.add(remember);
 		contentPane.add(login);
-		// contentPane.add(steam);
+		contentPane.add(steam);
 		contentPane.add(twitter);
-		contentPane.add(rubukkit);
+		// contentPane.add(facebook);
 		// contentPane.add(gplus);
 		// contentPane.add(youtube);
 		contentPane.add(home);
@@ -301,7 +301,7 @@ public class MetroLoginFrame extends LoginFrame implements ActionListener,
 		}
 		try {
 			return ImageIO
-					.read(getResourceAsStream("/org/spoutcraft/launcher/resources/steve.png"));
+					.read(getResourceAsStream("/org/spoutcraft/launcher/resources/face.png"));
 		} catch (IOException e1) {
 			throw new RuntimeException("Error reading backup image", e1);
 		}
@@ -323,16 +323,12 @@ public class MetroLoginFrame extends LoginFrame implements ActionListener,
 		} else if (action.equals(LOGIN_ACTION)) {
 			String pass = new String(this.pass.getPassword());
 			if (getSelectedUser().length() > 0 && pass.length() > 0) {
-				this.doLogin(getSelectedUser(), pass, this);
+				this.doLogin(getSelectedUser(), pass);
 				if (remember.isSelected()) {
 					saveUsername(getSelectedUser(), pass);
 				}
-			} else if (getSelectedUser().length() > 0 && pass.length() <= 0) {
-				this.doLogin(getSelectedUser(), null, this);
-				if (remember.isSelected()) {
-					saveUsername(getSelectedUser(), "");
-				}
-			}
+			} else
+				this.doLogin(getSelectedUser());
 		} else if (action.equals(IMAGE_LOGIN_ACTION)) {
 			DynamicButton userButton = (DynamicButton) c;
 			this.name.setText(userButton.getAccount());
@@ -353,13 +349,18 @@ public class MetroLoginFrame extends LoginFrame implements ActionListener,
 		}
 	}
 
-	public void stateChanged(String status, float progress) {
-		int intProgress = Math.round(progress);
-		progressBar.setValue(intProgress);
-		if (status.length() > 60) {
-			status = status.substring(0, 60) + "...";
-		}
-		progressBar.setString(intProgress + "% " + status);
+	public void stateChanged(final String status, final float progress) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				int intProgress = Math.round(progress);
+				progressBar.setValue(intProgress);
+				String text = status;
+				if (text.length() > 60) {
+					text = text.substring(0, 60) + "...";
+				}
+				progressBar.setString(intProgress + "% " + text);
+			}
+		});
 	}
 
 	@Override
@@ -369,12 +370,10 @@ public class MetroLoginFrame extends LoginFrame implements ActionListener,
 
 	@Override
 	public void disableForm() {
-
 	}
 
 	@Override
 	public void enableForm() {
-
 	}
 
 	@Override

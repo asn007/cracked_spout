@@ -1,7 +1,7 @@
 /*
  * This file is part of Spoutcraft.
  *
- * Copyright (c) 2011-2012, SpoutDev <http://www.spout.org/>
+ * Copyright (c) 2011-2012, Spout LLC <http://www.spout.org/>
  * Spoutcraft is licensed under the SpoutDev License Version 1.
  *
  * Spoutcraft is free software: you can redistribute it and/or modify
@@ -29,13 +29,11 @@ package org.spoutcraft.launcher.skin.components;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-
 import javax.swing.JProgressBar;
 
-public class LiteProgressBar extends JProgressBar implements Transparent {
+public class LiteProgressBar extends JProgressBar implements Transparent{
 	private static final long serialVersionUID = 1L;
-	private final TransparentComponent transparency = new TransparentComponent(
-			this, false);
+	private final TransparentComponent transparency = new TransparentComponent(this, false);
 
 	public LiteProgressBar() {
 		setFocusable(false);
@@ -51,18 +49,37 @@ public class LiteProgressBar extends JProgressBar implements Transparent {
 		g2d.fillRect(0, 0, getWidth(), getHeight());
 
 		// Draw progress
-		g2d.setColor(Color.decode("#ff5a5a"));
+		g2d.setColor(Color.BLUE);
 		int x = (int) (getWidth() * getPercentComplete());
 		g2d.fillRect(0, 0, x, getHeight());
 
 		transparency.cleanup(g2d);
 		g2d = (Graphics2D) g;
 
-		if (this.isStringPainted()) {
+		if (this.isStringPainted() && getString().length() > 0) {
 			g2d.setFont(getFont());
+			
+			final int startWidth = (getWidth() - g2d.getFontMetrics().stringWidth(getString())) / 2;
+			String white = "";
+			int whiteWidth = 0;
+			int chars = 0;
+			for (int i = 0; i < getString().length(); i++) {
+				white += getString().charAt(i);
+				whiteWidth = g2d.getFontMetrics().stringWidth(white);
+				if (startWidth + whiteWidth > x) {
+					break;
+				}
+				chars++;
+			}
+			if (chars != getString().length()) {
+				white = white.substring(0, white.length() - 1);
+				whiteWidth = g2d.getFontMetrics().stringWidth(white);
+			}
+			float height = getFont().getSize();
+			g2d.setColor(Color.WHITE);
+			g2d.drawString(white, startWidth, height * 1.5F);
 			g2d.setColor(Color.BLACK);
-			g2d.drawString(this.getString(), (getWidth() - g2d.getFontMetrics()
-					.stringWidth(getString())) / 2, getHeight() - 7);
+			g2d.drawString(this.getString().substring(chars), whiteWidth + startWidth, height * 1.5F);
 		}
 
 		transparency.cleanup(g2d);

@@ -1,7 +1,7 @@
 /*
  * This file is part of Spoutcraft.
  *
- * Copyright (c) 2011-2012, SpoutDev <http://www.spout.org/>
+ * Copyright (c) 2011-2012, Spout LLC <http://www.spout.org/>
  * Spoutcraft is licensed under the SpoutDev License Version 1.
  *
  * Spoutcraft is free software: you can redistribute it and/or modify
@@ -32,6 +32,7 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.File;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
@@ -42,7 +43,7 @@ import org.spoutcraft.launcher.exceptions.CorruptedMinecraftJarException;
 import org.spoutcraft.launcher.exceptions.MinecraftVerifyException;
 import org.spoutcraft.launcher.launch.MinecraftAppletEnglober;
 import org.spoutcraft.launcher.launch.MinecraftLauncher;
-import org.spoutcraft.launcher.skin.LegacyLoginFrame;
+import org.spoutcraft.launcher.skin.components.LoginFrame;
 import org.spoutcraft.launcher.util.Utils;
 
 public class GameLauncher extends JFrame implements WindowListener {
@@ -58,7 +59,7 @@ public class GameLauncher extends JFrame implements WindowListener {
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setResizable(true);
 		this.addWindowListener(this);
-		setIconImage(Toolkit.getDefaultToolkit().getImage(LegacyLoginFrame.spoutcraftIcon));
+		setIconImage(Toolkit.getDefaultToolkit().getImage(LoginFrame.spoutcraftIcon));
 	}
 
 	public void runGame(String user, String session, String downloadTicket) {
@@ -143,6 +144,9 @@ public class GameLauncher extends JFrame implements WindowListener {
 
 		validate();
 		this.setVisible(true);
+		//TODO Incredibly hacky fix for grey screens due to Minecraft not making the resources directory.
+		//TODO Someone fix this better (or not, no harm as it just works)
+		new File(Utils.getWorkingDirectory(), "resources").mkdirs();
 		minecraft.init();
 		minecraft.setSize(getWidth(), getHeight());
 		minecraft.start();

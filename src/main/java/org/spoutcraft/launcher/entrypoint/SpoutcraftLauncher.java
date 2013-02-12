@@ -1,7 +1,7 @@
 /*
  * This file is part of Spoutcraft.
  *
- * Copyright (c) 2011-2012, SpoutDev <http://www.spout.org/>
+ * Copyright (c) 2011-2012, Spout LLC <http://www.spout.org/>
  * Spoutcraft is licensed under the SpoutDev License Version 1.
  *
  * Spoutcraft is free software: you can redistribute it and/or modify
@@ -65,7 +65,6 @@ import org.spoutcraft.launcher.exceptions.RestfulAPIException;
 import org.spoutcraft.launcher.rest.SpoutcraftBuild;
 import org.spoutcraft.launcher.skin.ConsoleFrame;
 import org.spoutcraft.launcher.skin.ErrorDialog;
-import org.spoutcraft.launcher.skin.LegacyLoginFrame;
 import org.spoutcraft.launcher.skin.MetroLoginFrame;
 import org.spoutcraft.launcher.skin.components.LoginFrame;
 import org.spoutcraft.launcher.util.OperatingSystem;
@@ -74,11 +73,9 @@ import org.spoutcraft.launcher.yml.YAMLFormat;
 import org.spoutcraft.launcher.yml.YAMLProcessor;
 
 public class SpoutcraftLauncher {
-
 	private static Logger logger = null;
 	protected static RotatingFileHandler handler = null;
 	protected static ConsoleFrame console;
-
 	public SpoutcraftLauncher() {
 		main(new String[0]);
 	}
@@ -88,19 +85,11 @@ public class SpoutcraftLauncher {
 		final long startupTime = start;
 
 		// Prefer IPv4
-		System.setProperty("java.net.preferIPv4Stack", "true");
-
-		// Required for ROME to work
-		ClassLoader cl = SpoutcraftLauncher.class.getClassLoader();
-		Thread.currentThread().setContextClassLoader(cl);
+		System.setProperty("java.net.preferIPv4Stack" , "true");
 
 		cleanup();
 
-		SplashScreen splash = new SplashScreen(
-				Toolkit.getDefaultToolkit()
-						.getImage(
-								SplashScreen.class
-										.getResource("/org/spoutcraft/launcher/resources/splash.png")));
+		SplashScreen splash = new SplashScreen(Toolkit.getDefaultToolkit().getImage(SplashScreen.class.getResource("/org/spoutcraft/launcher/resources/splash.png")));
 		splash.setVisible(true);
 
 		StartupParameters params = setupParameters(args);
@@ -121,8 +110,7 @@ public class SpoutcraftLauncher {
 		if (Settings.getYAML() == null) {
 			YAMLProcessor settings = setupSettings();
 			if (settings == null) {
-				throw new NullPointerException(
-						"The YAMLProcessor object was null for settings.");
+				throw new NullPointerException("The YAMLProcessor object was null for settings.");
 			}
 			Settings.setYAML(settings);
 		}
@@ -132,24 +120,21 @@ public class SpoutcraftLauncher {
 		if (params.isDebugMode()) {
 			Settings.setDebugMode(true);
 		}
-		// Settings.setDebugMode(true);
+
 		if (Settings.isDebugMode()) {
-			logger.info("Initial launcher organization and look and feel time took "
-					+ (System.currentTimeMillis() - start) + " ms");
+			logger.info("Initial launcher organization and look and feel time took " + (System.currentTimeMillis() - start)	 + " ms");
 			start = System.currentTimeMillis();
 		}
 
 		if (Settings.isDebugMode()) {
-			logger.info("Launcher settings took "
-					+ (System.currentTimeMillis() - start) + " ms");
+			logger.info("Launcher settings took " + (System.currentTimeMillis() - start) + " ms");
 			start = System.currentTimeMillis();
 		}
 
 		if (params.relaunch(logger)) {
 			try {
 				Thread.sleep(3000);
-			} catch (InterruptedException e) {
-			}
+			} catch (InterruptedException e) { }
 			System.exit(0);
 			return;
 		}
@@ -170,17 +155,11 @@ public class SpoutcraftLauncher {
 		logThread.start();
 
 		// Set up the launcher and load login frame
-		LoginFrame frame;
-		if (Main.isOldLauncher()) {
-			frame = new LegacyLoginFrame();
-		} else {
-			frame = new MetroLoginFrame();
-		}
+		LoginFrame frame = new MetroLoginFrame();
 
 		try {
 			@SuppressWarnings("unused")
-			Launcher launcher = new Launcher(new GameUpdater(),
-					new GameLauncher(), frame);
+			Launcher launcher = new Launcher(new GameUpdater(), new GameLauncher(), frame);
 		} catch (IOException failure) {
 			failure.printStackTrace();
 			ErrorDialog dialog = new ErrorDialog(frame, failure);
@@ -193,8 +172,7 @@ public class SpoutcraftLauncher {
 		Launcher.getGameUpdater().start();
 
 		if (Settings.isDebugMode()) {
-			logger.info("Launcher skin manager took "
-					+ (System.currentTimeMillis() - start) + " ms");
+			logger.info("Launcher skin manager took " + (System.currentTimeMillis() - start) + " ms");
 			start = System.currentTimeMillis();
 		}
 
@@ -202,32 +180,23 @@ public class SpoutcraftLauncher {
 		frame.setVisible(true);
 		if (params.hasAccount()) {
 			frame.disableForm();
-			frame.doLogin(params.getUser(), params.getPass(),
-					new MetroLoginFrame());
+			frame.doLogin(params.getUser(), params.getPass());
 		}
 
 		if (Settings.isDebugMode()) {
-			logger.info("Launcher default skin loading took "
-					+ (System.currentTimeMillis() - start) + " ms");
+			logger.info("Launcher default skin loading took " + (System.currentTimeMillis() - start) + " ms");
 			start = System.currentTimeMillis();
 		}
 
-		logger.info("Launcher took: "
-				+ (System.currentTimeMillis() - startupTime) + "ms to start");
+		logger.info("Launcher took: " + (System.currentTimeMillis() - startupTime) + "ms to start");
 	}
 
 	private static void checkInternet() {
 		if (!pingURL("http://www.google.com")) {
-			JOptionPane.showMessageDialog(null,
-					"You must have an internet connection to use Spoutcraft",
-					"No Internet Connection!", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "You must have an internet connection to use Spoutcraft", "No Internet Connection!", JOptionPane.ERROR_MESSAGE);
 			System.exit(0);
 		} else if (!pingURL("http://get.spout.org")) {
-			JOptionPane
-					.showMessageDialog(
-							null,
-							"The Spout webservers are currently not responding. Try again later.",
-							"Spout Servers Down", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "The Spout webservers are currently not responding. Try again later.", "Spout Servers Down", JOptionPane.ERROR_MESSAGE);
 			System.exit(0);
 		}
 	}
@@ -297,9 +266,7 @@ public class SpoutcraftLauncher {
 		OperatingSystem os = OperatingSystem.getOS();
 		if (os.isMac()) {
 			System.setProperty("apple.laf.useScreenMenuBar", "true");
-			System.setProperty(
-					"com.apple.mrj.application.apple.menu.about.name",
-					"Spoutcraft");
+			System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Spoutcraft");
 		}
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -323,11 +290,9 @@ public class SpoutcraftLauncher {
 			logDirectory.mkdir();
 		}
 		File logs = new File(logDirectory, "spoutcraft_%D.log");
-		RotatingFileHandler fileHandler = new RotatingFileHandler(
-				logs.getPath());
+		RotatingFileHandler fileHandler = new RotatingFileHandler(logs.getPath());
 
-		fileHandler.setFormatter(new DateOutputFormatter(new SimpleDateFormat(
-				"yyyy/MM/dd HH:mm:ss")));
+		fileHandler.setFormatter(new DateOutputFormatter(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")));
 
 		for (Handler h : logger.getHandlers()) {
 			logger.removeHandler(h);
@@ -338,14 +303,12 @@ public class SpoutcraftLauncher {
 
 		logger.setUseParentHandlers(false);
 
-		System.setOut(new PrintStream(
-				new LoggerOutputStream(Level.INFO, logger), true));
-		System.setErr(new PrintStream(new LoggerOutputStream(Level.SEVERE,
-				logger), true));
+		System.setOut(new PrintStream(new LoggerOutputStream(Level.INFO, logger), true));
+		System.setErr(new PrintStream(new LoggerOutputStream(Level.SEVERE, logger), true));
 
 		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
 			public void uncaughtException(Thread t, Throwable e) {
-				logger.log(Level.SEVERE, "Unhandled Exception in " + t, e);
+		    	logger.log(Level.SEVERE, "Unhandled Exception in " + t, e);
 			}
 		});
 
@@ -367,12 +330,9 @@ public class SpoutcraftLauncher {
 	}
 
 	public static String getLauncherBuild() {
-		String build = "1";
+		String build = "0";
 		try {
-			build = IOUtils.toString(
-					SpoutcraftLauncher.class.getResource(
-							"/org/spoutcraft/launcher/resources/version")
-							.openStream(), "UTF-8");
+			build = IOUtils.toString(SpoutcraftLauncher.class.getResource("/org/spoutcraft/launcher/resources/version").openStream(), "UTF-8");
 		} catch (Exception e) {
 
 		}
@@ -380,13 +340,11 @@ public class SpoutcraftLauncher {
 	}
 
 	protected static YAMLProcessor setupSettings() {
-		File file = new File(Utils.getWorkingDirectory(), "config"
-				+ File.separator + "settings.yml");
+		File file = new File(Utils.getWorkingDirectory(), "config" + File.separator + "settings.yml");
 
 		if (!file.exists()) {
 			try {
-				InputStream input = SpoutcraftLauncher.class.getResource(
-						"resources/settings.yml").openStream();
+				InputStream input = SpoutcraftLauncher.class.getResource("resources/settings.yml").openStream();
 				if (input != null) {
 					FileOutputStream output = null;
 					try {
@@ -414,8 +372,7 @@ public class SpoutcraftLauncher {
 						}
 					}
 				}
-			} catch (Exception e) {
-			}
+			} catch (Exception e) { }
 		}
 
 		return new YAMLProcessor(file, false, YAMLFormat.EXTENDED);
@@ -450,8 +407,7 @@ class LogFlushThread extends Thread {
 			}
 			try {
 				sleep(60000);
-			} catch (InterruptedException e) {
-			}
+			} catch (InterruptedException e) { }
 		}
 	}
 }

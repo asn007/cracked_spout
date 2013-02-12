@@ -1,7 +1,7 @@
 /*
  * This file is part of Spoutcraft.
  *
- * Copyright (c) 2011-2012, SpoutDev <http://www.spout.org/>
+ * Copyright (c) 2011-2012, Spout LLC <http://www.spout.org/>
  * Spoutcraft is licensed under the SpoutDev License Version 1.
  *
  * Spoutcraft is free software: you can redistribute it and/or modify
@@ -52,7 +52,7 @@ import javax.swing.text.Element;
 
 /**
  * From http://tips4java.wordpress.com/2008/10/15/limit-lines-in-document/
- * 
+ *
  * @author Rob Camick
  */
 public class LimitLinesDocumentListener implements DocumentListener {
@@ -63,19 +63,18 @@ public class LimitLinesDocumentListener implements DocumentListener {
 	 * Specify the number of lines to be stored in the Document. Extra lines
 	 * will be removed from the start or end of the Document, depending on
 	 * the boolean value specified.
-	 * 
+	 *
 	 * @param maximumLines number of lines
-	 * @param isRemoveFromStart 
+	 * @param isRemoveFromStart
 	 */
-	public LimitLinesDocumentListener(int maximumLines,
-			boolean isRemoveFromStart) {
+	public LimitLinesDocumentListener(int maximumLines, boolean isRemoveFromStart) {
 		setLimitLines(maximumLines);
 		this.isRemoveFromStart = isRemoveFromStart;
 	}
 
 	/**
 	 * Set the maximum number of lines to be stored in the Document
-	 * 
+	 *
 	 * @param maximumLines number of lines
 	 */
 	public void setLimitLines(int maximumLines) {
@@ -90,7 +89,6 @@ public class LimitLinesDocumentListener implements DocumentListener {
 	public void insertUpdate(final DocumentEvent e) {
 		// Changes to the Document can not be done within the listener
 		// so we need to add the processing to the end of the EDT
-
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				removeLines(e);
@@ -107,7 +105,6 @@ public class LimitLinesDocumentListener implements DocumentListener {
 	private void removeLines(DocumentEvent e) {
 		// The root Element of the Document will tell us the total number
 		// of line in the Document.
-
 		Document document = e.getDocument();
 		Element root = document.getDefaultRootElement();
 
@@ -134,7 +131,6 @@ public class LimitLinesDocumentListener implements DocumentListener {
 	private void removeFromEnd(Document document, Element root) {
 		// We use start minus 1 to make sure we remove the newline
 		// character of the previous line
-
 		Element line = root.getElement(root.getElementCount() - 1);
 		int start = line.getStartOffset();
 		int end = line.getEndOffset();

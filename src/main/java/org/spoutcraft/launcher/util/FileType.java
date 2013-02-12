@@ -1,7 +1,7 @@
 /*
  * This file is part of Spoutcraft.
  *
- * Copyright (c) 2011-2012, SpoutDev <http://www.spout.org/>
+ * Copyright (c) 2011-2012, Spout LLC <http://www.spout.org/>
  * Spoutcraft is licensed under the SpoutDev License Version 1.
  *
  * Spoutcraft is free software: you can redistribute it and/or modify
@@ -30,7 +30,7 @@ public enum FileType {
 	JINPUT("a7835a73a130656aba23e34147a55367"),
 	LWJGL("7a07c4285fa9a6b204ba59f011f1cd77"),
 	LWJGL_UTIL("f00470751cfc093ba760ca3cf10a512c"),
-	MINECRAFT("7aa46c8058cba2f38e9d2ddddcc77c72");
+	MINECRAFT("8e80fb01b321c6b3c7efca397a3eea35");
 
 	private final String md5;
 	private FileType(String md5) {
@@ -42,6 +42,15 @@ public enum FileType {
 	}
 
 	public String getMD5(String version) {
+		if (this == MINECRAFT && "1.4.7".equals(version)) {
+			return "8e80fb01b321c6b3c7efca397a3eea35";
+		}
+		if (this == MINECRAFT && "1.4.6".equals(version)) {
+			return "48677dc4c2b98c29918722b5ab27b4fd";
+		}
+		if (this == MINECRAFT && "1.4.5".equals(version)) {
+			return "b15e2b2b6b4629f0d99a95b6b44412a0";
+		}
 		if (this == MINECRAFT && "1.3.2".equals(version)) {
 			return "969699f13e5bbe7f12e40ac4f32b7d9a";
 		}

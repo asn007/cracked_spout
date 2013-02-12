@@ -1,7 +1,7 @@
 /*
  * This file is part of Spoutcraft.
  *
- * Copyright (c) 2011-2012, SpoutDev <http://www.spout.org/>
+ * Copyright (c) 2011-2012, Spout LLC <http://www.spout.org/>
  * Spoutcraft is licensed under the SpoutDev License Version 1.
  *
  * Spoutcraft is free software: you can redistribute it and/or modify
@@ -66,8 +66,8 @@ public final class Versions {
 			} finally {
 				IOUtils.closeQuietly(stream);
 			}
-			//TODO: Fix
-			versions.add(0, "1.4.4");
+			//TODO: Fix by implementing get.spout.org API for MC
+			//versions.add(0, "1.4.7");
 		}
 		return versions;
 	}

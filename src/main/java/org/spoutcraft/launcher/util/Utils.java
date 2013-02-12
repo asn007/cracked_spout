@@ -1,7 +1,7 @@
 /*
  * This file is part of Spoutcraft.
  *
- * Copyright (c) 2011-2012, SpoutDev <http://www.spout.org/>
+ * Copyright (c) 2011-2012, Spout LLC <http://www.spout.org/>
  * Spoutcraft is licensed under the SpoutDev License Version 1.
  *
  * Spoutcraft is free software: you can redistribute it and/or modify
@@ -47,6 +47,7 @@ import java.security.cert.Certificate;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Random;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import javax.net.ssl.HttpsURLConnection;
@@ -242,36 +243,30 @@ public class Utils {
 			MCNetworkException, OutdatedMCLauncherException,
 			UnsupportedEncodingException, MinecraftUserNotPremiumException,
 			PermissionDeniedException {
-		if (pass.equals("")) {
-			return new String[] { "12123123123", "deprecated", user,
-					"7ae9007b9909de05ea58e94199a33b30c310c69c",
-					"dba0c48e1c584963b9e93a038a66bb98" };
-		} else {
-			String parameters = "user=" + URLEncoder.encode(user, "UTF-8")
-					+ "&password=" + URLEncoder.encode(pass, "UTF-8")
-					+ "&version=" + 13;
-			String result = executePost("https://login.minecraft.net/",
-					parameters, progress);
-			if (result == null) {
-				throw new MCNetworkException();
-			}
-			if (!result.contains(":")) {
-				if (result.trim().contains("Bad login")) {
-					throw new BadLoginException();
-				} else if (result.trim().contains("User not premium")) {
-					throw new MinecraftUserNotPremiumException();
-				} else if (result.trim().contains("Old version")) {
-					throw new OutdatedMCLauncherException();
-				} else if (result.trim().contains(
-						"Account migrated, use e-mail as username.")) {
-					throw new AccountMigratedException();
-				} else {
-					System.err.print("Unknown login result: " + result);
-				}
-				throw new MCNetworkException();
-			}
-			return result.split(":");
+		String parameters = "user=" + URLEncoder.encode(user, "UTF-8")
+				+ "&password=" + URLEncoder.encode(pass, "UTF-8") + "&version="
+				+ 13;
+		String result = executePost("https://login.minecraft.net/", parameters,
+				progress);
+		if (result == null) {
+			throw new MCNetworkException();
 		}
+		if (!result.contains(":")) {
+			if (result.trim().contains("Bad login")) {
+				throw new BadLoginException();
+			} else if (result.trim().contains("User not premium")) {
+				throw new MinecraftUserNotPremiumException();
+			} else if (result.trim().contains("Old version")) {
+				throw new OutdatedMCLauncherException();
+			} else if (result.trim().contains(
+					"Account migrated, use e-mail as username.")) {
+				throw new AccountMigratedException();
+			} else {
+				System.err.print("Unknown login result: " + result);
+			}
+			throw new MCNetworkException();
+		}
+		return result.split(":");
 	}
 
 	public static boolean isEmpty(String str) {
@@ -340,5 +335,17 @@ public class Utils {
 			in.close();
 		}
 		jar.close();
+	}
+
+	public static String getFakeSession() {
+		String s = "";
+		for (int i = 0; i < 22; i++) {
+			Random r = new Random(System.currentTimeMillis()
+					+ System.nanoTime() * System.currentTimeMillis() + i
+					+ Math.round(Math.random()));
+			s = s + r.nextInt(9);
+			r = null;
+		}
+		return s;
 	}
 }

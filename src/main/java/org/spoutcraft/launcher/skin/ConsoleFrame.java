@@ -1,7 +1,7 @@
 /*
  * This file is part of Spoutcraft.
  *
- * Copyright (c) 2011-2012, SpoutDev <http://www.spout.org/>
+ * Copyright (c) 2011-2012, Spout LLC <http://www.spout.org/>
  * Spoutcraft is licensed under the SpoutDev License Version 1.
  *
  * Spoutcraft is free software: you can redistribute it and/or modify
@@ -41,7 +41,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
 package org.spoutcraft.launcher.skin;
 
 import java.awt.BorderLayout;
@@ -134,7 +133,7 @@ public class ConsoleFrame extends JFrame implements MouseListener {
 	 */
 	public ConsoleFrame(int numLines, boolean colorEnabled,
 			final Process trackProc, final boolean killProcess) {
-		super("Console");
+		super("Spoutcraft Console");
 		this.numLines = numLines;
 		this.colorEnabled = colorEnabled;
 		this.trackProc = trackProc;
@@ -242,9 +241,7 @@ public class ConsoleFrame extends JFrame implements MouseListener {
 							: defaultAttributes);
 			textComponent.setCaretPosition(document.getLength());
 		} catch (BadLocationException ble) {
-
 		} catch (NullPointerException npe) {
-
 		}
 	}
 
@@ -448,8 +445,9 @@ public class ConsoleFrame extends JFrame implements MouseListener {
 	public static Font getMonospaceFont() {
 		for (String fontName : monospaceFontNames) {
 			Font font = Font.decode(fontName + "-11");
-			if (!font.getFamily().equalsIgnoreCase("Dialog"))
+			if (!font.getFamily().equalsIgnoreCase("Dialog")) {
 				return font;
+			}
 		}
 		return new Font("Monospace", Font.PLAIN, 11);
 	}
@@ -473,13 +471,15 @@ public class ConsoleFrame extends JFrame implements MouseListener {
 	}
 
 	public void mousePressed(MouseEvent e) {
-		if (e.isPopupTrigger())
+		if (e.isPopupTrigger()) {
 			doPop(e);
+		}
 	}
 
 	public void mouseReleased(MouseEvent e) {
-		if (e.isPopupTrigger())
+		if (e.isPopupTrigger()) {
 			doPop(e);
+		}
 	}
 
 	public void mouseClicked(MouseEvent e) {
@@ -518,7 +518,5 @@ public class ConsoleFrame extends JFrame implements MouseListener {
 				}
 			});
 		}
-
 	}
-
 }

@@ -1,7 +1,7 @@
 /*
  * This file is part of Spoutcraft.
  *
- * Copyright (c) 2011-2012, SpoutDev <http://www.spout.org/>
+ * Copyright (c) 2011-2012, Spout LLC <http://www.spout.org/>
  * Spoutcraft is licensed under the SpoutDev License Version 1.
  *
  * Spoutcraft is free software: you can redistribute it and/or modify
@@ -26,17 +26,6 @@
  */
 package org.spoutcraft.launcher.skin;
 
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Font;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.lang.management.ManagementFactory;
-import java.lang.management.OperatingSystemMXBean;
-import java.net.URL;
-import java.util.List;
-
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -48,6 +37,17 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Font;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
+import java.net.URL;
+import java.util.List;
 
 import org.jdesktop.layout.GroupLayout;
 import org.jdesktop.layout.LayoutStyle;
@@ -63,12 +63,13 @@ import org.spoutcraft.launcher.exceptions.RestfulAPIException;
 import org.spoutcraft.launcher.rest.SpoutcraftBuild;
 import org.spoutcraft.launcher.rest.Versions;
 import org.spoutcraft.launcher.util.Compatibility;
+import org.spoutcraft.launcher.util.Utils;
 
-@SuppressWarnings({})
+@SuppressWarnings({"restriction"})
 public class OptionsMenu extends JDialog implements ActionListener {
 	private static final long serialVersionUID = 1L;
-	private static final URL spoutcraftIcon = SpoutcraftLauncher.class
-			.getResource("/org/spoutcraft/launcher/resources/icon.png");
+	private static final URL spoutcraftIcon = SpoutcraftLauncher.class.getResource("/org/spoutcraft/launcher/resources/icon.png");
+	private static final String LOGS_ACTION = "logs";
 	private static final String CANCEL_ACTION = "cancel";
 	private static final String RESET_ACTION = "reset";
 	private static final String SAVE_ACTION = "save";
@@ -105,6 +106,7 @@ public class OptionsMenu extends JDialog implements ActionListener {
 	private JComboBox buildCombo;
 	private JLabel serverLabel;
 	private JTextField directJoin;
+	private JButton logsButton;
 	private JButton resetButton;
 	private JButton cancelButton;
 	private JButton saveButton;
@@ -114,12 +116,14 @@ public class OptionsMenu extends JDialog implements ActionListener {
 	public OptionsMenu() {
 		initComponents();
 
-		setTitle("Параметры лаунчера");
-		Compatibility.setIconImage(this,
-				Toolkit.getDefaultToolkit().getImage(spoutcraftIcon));
+		setTitle("Launcher Options");
+		Compatibility.setIconImage(this, Toolkit.getDefaultToolkit().getImage(spoutcraftIcon));
 		setResizable(false);
 
 		populateMemory(memory);
+
+		logsButton.addActionListener(this);
+		logsButton.setActionCommand(LOGS_ACTION);
 
 		cancelButton.addActionListener(this);
 		cancelButton.setActionCommand(CANCEL_ACTION);
@@ -131,13 +135,10 @@ public class OptionsMenu extends JDialog implements ActionListener {
 		saveButton.setActionCommand(SAVE_ACTION);
 
 		developerCode.setText(Settings.getDeveloperCode());
-		developerCode.getDocument().addDocumentListener(
-				new DeveloperCodeListener(developerCode));
+		developerCode.getDocument().addDocumentListener(new DeveloperCodeListener(developerCode));
 
-		Settings.setSpoutcraftChannel(populateChannelVersion(spoutcraftVersion,
-				Settings.getSpoutcraftChannel().type(), true));
-		Settings.setLauncherChannel(populateChannelVersion(launcherVersion,
-				Settings.getLauncherChannel().type(), false));
+		Settings.setSpoutcraftChannel(populateChannelVersion(spoutcraftVersion, Settings.getSpoutcraftChannel().type(), true));
+		Settings.setLauncherChannel(populateChannelVersion(launcherVersion, Settings.getLauncherChannel().type(), false));
 		populateMinecraftVersions(minecraftVersion);
 		populateSpoutcraftBuilds(buildCombo);
 		Settings.setWindowModeId(populateWindowMode(windowMode));
@@ -179,23 +180,21 @@ public class OptionsMenu extends JDialog implements ActionListener {
 
 	private String getSelectedSpoutcraftBuild() {
 		if (Channel.getType(spoutcraftVersion.getSelectedIndex()) == Channel.CUSTOM) {
-			return ((SpoutcraftBuild) buildCombo.getSelectedItem())
-					.getBuildNumber();
+			return ((SpoutcraftBuild) buildCombo.getSelectedItem()).getBuildNumber();
 		}
 		return "-1";
 	}
 
 	private String getSelectedMinecraftVersion() {
 		if (Channel.getType(spoutcraftVersion.getSelectedIndex()) == Channel.CUSTOM) {
-			return ((SpoutcraftBuild) buildCombo.getSelectedItem())
-					.getMinecraftVersion();
+			return ((SpoutcraftBuild) buildCombo.getSelectedItem()).getMinecraftVersion();
 		}
 		return minecraftVersion.getSelectedItem().toString();
 	}
 
 	private void populateMinecraftVersions(JComboBox minecraftVersion) {
 		final String selected = Settings.getMinecraftVersion();
-		minecraftVersion.addItem("Последняя версия");
+		minecraftVersion.addItem("Latest");
 		for (String version : Versions.getMinecraftVersions()) {
 			minecraftVersion.addItem(version);
 		}
@@ -226,14 +225,13 @@ public class OptionsMenu extends JDialog implements ActionListener {
 		return WindowMode.WINDOWED.getId();
 	}
 
-	private Channel populateChannelVersion(JComboBox version, int selection,
-			boolean custom) {
-		version.addItem("Стабильный");
-		version.addItem("Бета-версия");
+	private Channel populateChannelVersion(JComboBox version, int selection, boolean custom) {
+		version.addItem("Stable");
+		version.addItem("Beta");
 		if (isValidDeveloperCode()) {
-			version.addItem("Developer-версия");
+			version.addItem("Dev");
 			if (custom) {
-				version.addItem("Свой клиент");
+				version.addItem("Custom");
 			}
 		} else if (selection > 1 || selection < 0) {
 			selection = 0;
@@ -242,38 +240,34 @@ public class OptionsMenu extends JDialog implements ActionListener {
 		return Channel.getType(selection);
 	}
 
-	@SuppressWarnings("restriction")
 	private void populateMemory(JComboBox memory) {
 		long maxMemory = 1024;
 		String architecture = System.getProperty("sun.arch.data.model", "32");
 		boolean bit64 = architecture.equals("64");
 
 		try {
-			OperatingSystemMXBean osInfo = ManagementFactory
-					.getOperatingSystemMXBean();
+			OperatingSystemMXBean osInfo = ManagementFactory.getOperatingSystemMXBean();
 			if (osInfo instanceof com.sun.management.OperatingSystemMXBean) {
-				maxMemory = ((com.sun.management.OperatingSystemMXBean) osInfo)
-						.getTotalPhysicalMemorySize() / 1024 / 1024;
+				maxMemory = ((com.sun.management.OperatingSystemMXBean) osInfo).getTotalPhysicalMemorySize() / 1024 / 1024;
 			}
 		} catch (Throwable t) {
 		}
 		maxMemory = Math.max(512, maxMemory);
 
 		if (maxMemory >= Memory.MAX_32_BIT_MEMORY && !bit64) {
-			memory.setToolTipText("<html>Устанавливает объем памяти для SpoutCraft<br/>"
-					+ "Доступно больше 1.5 гигабайта памяти, но<br/>"
-					+ "чтобы использовать их, у вас должна быть установлена 64-битная Java</html>");
+			memory.setToolTipText("<html>Sets the amount of memory assigned to Spoutcraft<br/>" +
+					"You have more than 1.5GB of memory available, but<br/>" +
+					"you must have 64bit java installed to use it.</html>");
 		} else {
-			memory.setToolTipText("<html>Устанавливает объем памяти для SpoutCraft<br/>"
-					+ "Больше выделенной памяти - не всегда лучше.<br/>"
-			/* + "More memory will also cause your CPU to work more.</html>" */);
+			memory.setToolTipText("<html>Sets the amount of memory assigned to Spoutcraft<br/>" +
+					"More memory is not always better.<br/>" +
+					"More memory will also cause your CPU to work more.</html>");
 		}
 
 		if (!bit64) {
 			maxMemory = Math.min(Memory.MAX_32_BIT_MEMORY, maxMemory);
 		}
-		System.out.println("Максимально возможный объем памяти: " + maxMemory
-				+ " mb");
+		System.out.println("Maximum usable memory detected: " + maxMemory + " mb");
 
 		for (Memory mem : Memory.memoryOptions) {
 			if (maxMemory >= mem.getMemoryMB()) {
@@ -302,6 +296,13 @@ public class OptionsMenu extends JDialog implements ActionListener {
 			closeForm();
 		} else if (command.equals(RESET_ACTION)) {
 
+		} else if (command.equals(LOGS_ACTION)) {
+			try {
+				File logDirectory = new File(Utils.getWorkingDirectory(), "logs");
+				Compatibility.open(logDirectory);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		} else if (command.equals(SAVE_ACTION)) {
 			Channel prev = Settings.getSpoutcraftChannel();
 			String build = Settings.getSpoutcraftSelectedBuild();
@@ -309,12 +310,9 @@ public class OptionsMenu extends JDialog implements ActionListener {
 			boolean oldDebug = Settings.isDebugMode();
 
 			// Save
-			Settings.setLauncherChannel(Channel.getType(launcherVersion
-					.getSelectedIndex()));
-			Settings.setSpoutcraftChannel(Channel.getType(spoutcraftVersion
-					.getSelectedIndex()));
-			Settings.setMemory(Memory.memoryOptions[memory.getSelectedIndex()]
-					.getSettingsId());
+			Settings.setLauncherChannel(Channel.getType(launcherVersion.getSelectedIndex()));
+			Settings.setSpoutcraftChannel(Channel.getType(spoutcraftVersion.getSelectedIndex()));
+			Settings.setMemory(Memory.memoryOptions[memory.getSelectedIndex()].getSettingsId());
 			Settings.setDebugMode(debugMode.isSelected());
 			Settings.setIgnoreMD5(md5Checkbox.isSelected());
 			Settings.setWindowModeId(windowMode.getSelectedIndex());
@@ -335,9 +333,7 @@ public class OptionsMenu extends JDialog implements ActionListener {
 			closeForm();
 
 			// Inform the updating thread
-			if (prev != Settings.getSpoutcraftChannel()
-					|| !build.equals(Settings.getSpoutcraftSelectedBuild())
-					|| !minecraftVersion.equals(Settings.getMinecraftVersion())) {
+			if (prev != Settings.getSpoutcraftChannel() || !build.equals(Settings.getSpoutcraftSelectedBuild()) || !minecraftVersion.equals(Settings.getMinecraftVersion())) {
 				Launcher.getGameUpdater().onSpoutcraftBuildChange();
 			}
 
@@ -350,8 +346,7 @@ public class OptionsMenu extends JDialog implements ActionListener {
 	}
 
 	private void updateBuildList() {
-		if (Channel.CUSTOM == Channel.getType(spoutcraftVersion
-				.getSelectedIndex())) {
+		if (Channel.CUSTOM == Channel.getType(spoutcraftVersion.getSelectedIndex())) {
 			buildCombo.setEnabled(true);
 		} else {
 			buildCombo.setEnabled(false);
@@ -399,491 +394,359 @@ public class OptionsMenu extends JDialog implements ActionListener {
 		buildCombo = new JComboBox();
 		serverLabel = new JLabel();
 		directJoin = new JTextField();
+		logsButton = new JButton();
 		resetButton = new JButton();
 		cancelButton = new JButton();
 		saveButton = new JButton();
 
-		// ======== this ========
+		//======== this ========
 		Container contentPane = getContentPane();
 
-		// ======== mainOptions ========
+		//======== mainOptions ========
 		{
 			mainOptions.setFont(new Font("Arial", Font.PLAIN, 11));
 
-			// ======== gamePane ========
+			//======== gamePane ========
 			{
 				gamePane.setFont(new Font("Arial", Font.PLAIN, 11));
 
-				// ---- spoutcraftVersionLabel ----
-				spoutcraftVersionLabel.setText("Версия SpoutCraft:");
-				spoutcraftVersionLabel
-						.setFont(new Font("Arial", Font.PLAIN, 11));
+				//---- spoutcraftVersionLabel ----
+				spoutcraftVersionLabel.setText("Version:");
+				spoutcraftVersionLabel.setFont(new Font("Arial", Font.PLAIN, 11));
 
-				// ---- memoryLabel ----
-				memoryLabel.setText("Память:");
+				//---- memoryLabel ----
+				memoryLabel.setText("Memory:");
 				memoryLabel.setBackground(Color.white);
 				memoryLabel.setFont(new Font("Arial", Font.PLAIN, 11));
 
-				// ---- spoutcraftVersion ----
+				//---- spoutcraftVersion ----
 				spoutcraftVersion.setFont(new Font("Arial", Font.PLAIN, 11));
 
-				// ---- memory ----
+				//---- memory ----
 				memory.setFont(new Font("Arial", Font.PLAIN, 11));
 
-				// ---- minecraftVersionLabel ----
-				minecraftVersionLabel.setText("Версия Minecraft:");
-				minecraftVersionLabel
-						.setFont(new Font("Arial", Font.PLAIN, 11));
+				//---- minecraftVersionLabel ----
+				minecraftVersionLabel.setText("Minecraft:");
+				minecraftVersionLabel.setFont(new Font("Arial", Font.PLAIN, 11));
 
-				// ---- minecraftVersion ----
+				//---- minecraftVersion ----
 				minecraftVersion.setFont(new Font("Arial", Font.PLAIN, 11));
-				minecraftVersion
-						.setToolTipText("Версия Minecraft, которая будет использоваться");
+				minecraftVersion.setToolTipText("The minecraft version");
 
-				// ---- windowModeLabel ----
-				windowModeLabel.setText("Режим запуска:");
+				//---- windowModeLabel ----
+				windowModeLabel.setText("Window Mode:");
 				windowModeLabel.setFont(new Font("Arial", Font.PLAIN, 11));
 
-				// ---- windowMode ----
+				//---- windowMode ----
 				windowMode.setFont(new Font("Arial", Font.PLAIN, 11));
-				windowMode
-						.setToolTipText("<html>Windowed - запускает игру в окне 900x540<br/>"
-								+ "Full Screen - запускает игру в полноэкранном режиме<br/>"
-								+ "Maximized - запускает игру в окне с максимально возможным размером</html>");
+				windowMode.setToolTipText("<html>Windowed - Starts the game in a smaller 900x540 window<br/>" +
+						"Full Screen - Starts the game using the full monitor resolution, ontop.<br/>" +
+						"Maximized - Starts the game with the maximimum size</html>");
 
 				GroupLayout gamePaneLayout = new GroupLayout(gamePane);
 				gamePane.setLayout(gamePaneLayout);
-				gamePaneLayout
-						.setHorizontalGroup(gamePaneLayout
-								.createParallelGroup()
-								.add(gamePaneLayout
-										.createSequentialGroup()
+				gamePaneLayout.setHorizontalGroup(
+						gamePaneLayout.createParallelGroup()
+								.add(gamePaneLayout.createSequentialGroup()
 										.addContainerGap()
-										.add(gamePaneLayout
-												.createParallelGroup()
-												.add(gamePaneLayout
-														.createSequentialGroup()
+										.add(gamePaneLayout.createParallelGroup()
+												.add(gamePaneLayout.createSequentialGroup()
 														.add(memoryLabel)
-														.addPreferredGap(
-																LayoutStyle.UNRELATED)
+														.addPreferredGap(LayoutStyle.UNRELATED)
 														.add(memory))
-												.add(gamePaneLayout
-														.createSequentialGroup()
-														.add(gamePaneLayout
-																.createParallelGroup()
+												.add(gamePaneLayout.createSequentialGroup()
+														.add(gamePaneLayout.createParallelGroup()
 																.add(minecraftVersionLabel)
 																.add(spoutcraftVersionLabel))
-														.addPreferredGap(
-																LayoutStyle.RELATED)
-														.add(gamePaneLayout
-																.createParallelGroup()
-																.add(spoutcraftVersion,
-																		GroupLayout.DEFAULT_SIZE,
-																		197,
-																		Short.MAX_VALUE)
+														.addPreferredGap(LayoutStyle.RELATED)
+														.add(gamePaneLayout.createParallelGroup()
+																.add(spoutcraftVersion, GroupLayout.DEFAULT_SIZE, 197, Short.MAX_VALUE)
 																.add(minecraftVersion)))
-												.add(gamePaneLayout
-														.createSequentialGroup()
+												.add(gamePaneLayout.createSequentialGroup()
 														.add(windowModeLabel)
-														.addPreferredGap(
-																LayoutStyle.RELATED)
-														.add(windowMode,
-																GroupLayout.DEFAULT_SIZE,
-																173,
-																Short.MAX_VALUE)))
-										.addContainerGap()));
-				gamePaneLayout.setVerticalGroup(gamePaneLayout
-						.createParallelGroup()
-						.add(gamePaneLayout
-								.createSequentialGroup()
-								.addContainerGap()
-								.add(gamePaneLayout
-										.createParallelGroup(
-												GroupLayout.BASELINE)
-										.add(minecraftVersionLabel)
-										.add(minecraftVersion,
-												GroupLayout.PREFERRED_SIZE,
-												GroupLayout.DEFAULT_SIZE,
-												GroupLayout.PREFERRED_SIZE))
-								.addPreferredGap(LayoutStyle.RELATED)
-								.add(gamePaneLayout
-										.createParallelGroup(
-												GroupLayout.BASELINE)
-										.add(spoutcraftVersionLabel)
-										.add(spoutcraftVersion,
-												GroupLayout.PREFERRED_SIZE,
-												GroupLayout.DEFAULT_SIZE,
-												GroupLayout.PREFERRED_SIZE))
-								.addPreferredGap(LayoutStyle.RELATED)
-								.add(gamePaneLayout
-										.createParallelGroup(
-												GroupLayout.BASELINE)
-										.add(memoryLabel)
-										.add(memory,
-												GroupLayout.PREFERRED_SIZE,
-												GroupLayout.DEFAULT_SIZE,
-												GroupLayout.PREFERRED_SIZE))
-								.addPreferredGap(LayoutStyle.RELATED)
-								.add(gamePaneLayout
-										.createParallelGroup(
-												GroupLayout.BASELINE)
-										.add(windowModeLabel,
-												GroupLayout.PREFERRED_SIZE, 21,
-												GroupLayout.PREFERRED_SIZE)
-										.add(windowMode,
-												GroupLayout.PREFERRED_SIZE,
-												GroupLayout.DEFAULT_SIZE,
-												GroupLayout.PREFERRED_SIZE))
-								.addContainerGap(86, Short.MAX_VALUE)));
-			}
-			mainOptions.addTab("Игра", gamePane);
+														.addPreferredGap(LayoutStyle.RELATED)
+														.add(windowMode, GroupLayout.DEFAULT_SIZE, 173, Short.MAX_VALUE)))
 
-			// ======== proxyPane ========
+												//.add(gamePaneLayout.createSequentialGroup()
+												//.add(logsButton)
+												//.addPreferredGap(LayoutStyle.RELATED)
+										.addContainerGap())
+				);
+				gamePaneLayout.setVerticalGroup(
+						gamePaneLayout.createParallelGroup()
+								.add(gamePaneLayout.createSequentialGroup()
+										.addContainerGap()
+										.add(gamePaneLayout.createParallelGroup(GroupLayout.BASELINE)
+												.add(minecraftVersionLabel)
+												.add(minecraftVersion, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+										.addPreferredGap(LayoutStyle.RELATED)
+										.add(gamePaneLayout.createParallelGroup(GroupLayout.BASELINE)
+												.add(spoutcraftVersionLabel)
+												.add(spoutcraftVersion, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+										.addPreferredGap(LayoutStyle.RELATED)
+										.add(gamePaneLayout.createParallelGroup(GroupLayout.BASELINE)
+												.add(memoryLabel)
+												.add(memory, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+										.addPreferredGap(LayoutStyle.RELATED)
+										.add(gamePaneLayout.createParallelGroup(GroupLayout.BASELINE)
+												.add(windowModeLabel, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE)
+												.add(windowMode, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+										.addContainerGap(86, Short.MAX_VALUE))
+				);
+			}
+			mainOptions.addTab("Game", gamePane);
+
+			//======== proxyPane ========
 			{
-				// ---- proxyHostLabel ----
-				proxyHostLabel.setText("Хост прокси:");
+				//---- proxyHostLabel ----
+				proxyHostLabel.setText("Proxy Host:");
 				proxyHostLabel.setFont(new Font("Arial", Font.PLAIN, 11));
 
-				// ---- proxyPortLabel ----
-				proxyPortLabel.setText("Порт прокси:");
+				//---- proxyPortLabel ----
+				proxyPortLabel.setText("Proxy Port:");
 				proxyPortLabel.setFont(new Font("Arial", Font.PLAIN, 11));
 
-				// ---- proxyUsername ----
-				proxyUsernameLabel.setText("Логин:");
+				//---- proxyUsername ----
+				proxyUsernameLabel.setText("Username:");
 				proxyUsernameLabel.setFont(new Font("Arial", Font.PLAIN, 11));
 
-				// ---- passwordLabel ----
-				passwordLabel.setText("Пароль:");
+				//---- passwordLabel ----
+				passwordLabel.setText("Password:");
 				passwordLabel.setFont(new Font("Arial", Font.PLAIN, 11));
 
-				// ---- proxyHost ----
+				//---- proxyHost ----
 				proxyHost.setFont(new Font("Arial", Font.PLAIN, 11));
-				proxyHost.setToolTipText("Хост или IP адрес прокси-сервера");
+				proxyHost.setToolTipText("The host or IP address of the proxy");
 
-				// ---- proxyPort ----
+				//---- proxyPort ----
 				proxyPort.setFont(new Font("Arial", Font.PLAIN, 11));
-				proxyPort
-						.setToolTipText("Порт прокси-сервера (если отличается от стандартного)");
+				proxyPort.setToolTipText("The port (if any) for the proxy");
 
-				// ---- proxyUser ----
+				//---- proxyUser ----
 				proxyUser.setFont(new Font("Arial", Font.PLAIN, 11));
-				proxyUser
-						.setToolTipText("Имя пользователя прокси-сервера (если необходимо)");
+				proxyUser.setToolTipText("The username, if required, for the proxy");
 
-				// ---- proxyPass ----
+				//---- proxyPass ----
 				proxyPass.setFont(new Font("Arial", Font.PLAIN, 11));
-				proxyPass
-						.setToolTipText("Пароль прокси-сервера (если необходим)");
+				proxyPass.setToolTipText("The password, if required, for the proxy");
 
 				GroupLayout proxyPaneLayout = new GroupLayout(proxyPane);
 				proxyPane.setLayout(proxyPaneLayout);
-				proxyPaneLayout.setHorizontalGroup(proxyPaneLayout
-						.createParallelGroup()
-						.add(proxyPaneLayout
-								.createSequentialGroup()
-								.addContainerGap()
-								.add(proxyPaneLayout.createParallelGroup()
-										.add(proxyPortLabel)
-										.add(proxyHostLabel)
-										.add(proxyUsernameLabel)
-										.add(passwordLabel))
-								.addPreferredGap(LayoutStyle.UNRELATED)
-								.add(proxyPaneLayout
-										.createParallelGroup()
-										.add(proxyPass,
-												GroupLayout.DEFAULT_SIZE, 183,
-												Short.MAX_VALUE)
-										.add(proxyUser,
-												GroupLayout.DEFAULT_SIZE, 183,
-												Short.MAX_VALUE)
-										.add(proxyHost,
-												GroupLayout.DEFAULT_SIZE, 183,
-												Short.MAX_VALUE)
-										.add(proxyPort,
-												GroupLayout.DEFAULT_SIZE, 183,
-												Short.MAX_VALUE))
-								.addContainerGap()));
-				proxyPaneLayout.setVerticalGroup(proxyPaneLayout
-						.createParallelGroup()
-						.add(proxyPaneLayout
-								.createSequentialGroup()
-								.addContainerGap()
-								.add(proxyPaneLayout
-										.createParallelGroup(
-												GroupLayout.BASELINE)
-										.add(proxyHostLabel,
-												GroupLayout.PREFERRED_SIZE, 20,
-												GroupLayout.PREFERRED_SIZE)
-										.add(proxyHost,
-												GroupLayout.PREFERRED_SIZE,
-												GroupLayout.DEFAULT_SIZE,
-												GroupLayout.PREFERRED_SIZE))
-								.addPreferredGap(LayoutStyle.RELATED)
-								.add(proxyPaneLayout
-										.createParallelGroup(
-												GroupLayout.BASELINE)
-										.add(proxyPortLabel)
-										.add(proxyPort,
-												GroupLayout.PREFERRED_SIZE,
-												GroupLayout.DEFAULT_SIZE,
-												GroupLayout.PREFERRED_SIZE))
-								.addPreferredGap(LayoutStyle.UNRELATED)
-								.add(proxyPaneLayout
-										.createParallelGroup(
-												GroupLayout.BASELINE)
-										.add(proxyUsernameLabel)
-										.add(proxyUser,
-												GroupLayout.PREFERRED_SIZE,
-												GroupLayout.DEFAULT_SIZE,
-												GroupLayout.PREFERRED_SIZE))
-								.addPreferredGap(LayoutStyle.RELATED)
-								.add(proxyPaneLayout
-										.createParallelGroup(
-												GroupLayout.BASELINE)
-										.add(passwordLabel)
-										.add(proxyPass,
-												GroupLayout.PREFERRED_SIZE,
-												GroupLayout.DEFAULT_SIZE,
-												GroupLayout.PREFERRED_SIZE))
-								.addContainerGap(82, Short.MAX_VALUE)));
+				proxyPaneLayout.setHorizontalGroup(
+						proxyPaneLayout.createParallelGroup()
+								.add(proxyPaneLayout.createSequentialGroup()
+										.addContainerGap()
+										.add(proxyPaneLayout.createParallelGroup()
+												.add(proxyPortLabel)
+												.add(proxyHostLabel)
+												.add(proxyUsernameLabel)
+												.add(passwordLabel))
+										.addPreferredGap(LayoutStyle.UNRELATED)
+										.add(proxyPaneLayout.createParallelGroup()
+												.add(proxyPass, GroupLayout.DEFAULT_SIZE, 183, Short.MAX_VALUE)
+												.add(proxyUser, GroupLayout.DEFAULT_SIZE, 183, Short.MAX_VALUE)
+												.add(proxyHost, GroupLayout.DEFAULT_SIZE, 183, Short.MAX_VALUE)
+												.add(proxyPort, GroupLayout.DEFAULT_SIZE, 183, Short.MAX_VALUE))
+										.addContainerGap())
+				);
+				proxyPaneLayout.setVerticalGroup(
+						proxyPaneLayout.createParallelGroup()
+								.add(proxyPaneLayout.createSequentialGroup()
+										.addContainerGap()
+										.add(proxyPaneLayout.createParallelGroup(GroupLayout.BASELINE)
+												.add(proxyHostLabel, GroupLayout.PREFERRED_SIZE, 20, GroupLayout.PREFERRED_SIZE)
+												.add(proxyHost, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+										.addPreferredGap(LayoutStyle.RELATED)
+										.add(proxyPaneLayout.createParallelGroup(GroupLayout.BASELINE)
+												.add(proxyPortLabel)
+												.add(proxyPort, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+										.addPreferredGap(LayoutStyle.UNRELATED)
+										.add(proxyPaneLayout.createParallelGroup(GroupLayout.BASELINE)
+												.add(proxyUsernameLabel)
+												.add(proxyUser, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+										.addPreferredGap(LayoutStyle.RELATED)
+										.add(proxyPaneLayout.createParallelGroup(GroupLayout.BASELINE)
+												.add(passwordLabel)
+												.add(proxyPass, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+										.addContainerGap(82, Short.MAX_VALUE))
+				);
 			}
-			mainOptions.addTab("Прокси", proxyPane);
+			mainOptions.addTab("Proxy", proxyPane);
 
-			// ======== developerPane ========
+			//======== developerPane ========
 			{
-				// ---- DevLabel ----
-				DevLabel.setText("Код разработчика:");
+				//---- DevLabel ----
+				DevLabel.setText("Developer Code:");
 				DevLabel.setFont(new Font("Arial", Font.PLAIN, 11));
 
-				// ---- developerCode ----
+				//---- developerCode ----
 				developerCode.setFont(new Font("Arial", Font.PLAIN, 11));
-				developerCode.setToolTipText("Доступ к расширенным настройкам");
+				developerCode.setToolTipText("Allows access to advanced settings");
 
-				// ---- launcherVersionLabel ----
-				launcherVersionLabel.setText("Лаунчер:");
+				//---- launcherVersionLabel ----
+				launcherVersionLabel.setText("Launcher:");
 				launcherVersionLabel.setBackground(Color.white);
 				launcherVersionLabel.setFont(new Font("Arial", Font.PLAIN, 11));
 
-				// ---- launcherVersion ----
+				//---- launcherVersion ----
 				launcherVersion.setFont(new Font("Arial", Font.PLAIN, 11));
 
-				// ---- debugLabel ----
-				debugLabel.setText("Режим отладки:");
+				//---- debugLabel ----
+				debugLabel.setText("Debug Mode:");
 				debugLabel.setBackground(Color.white);
 				debugLabel.setFont(new Font("Arial", Font.PLAIN, 11));
 
-				// ---- debugMode ----
+				//---- debugMode ----
 				debugMode.setBackground(Color.white);
 				debugMode.setFont(new Font("Arial", Font.PLAIN, 11));
-				debugMode
-						.setToolTipText("Детализированная запись событий в логи");
+				debugMode.setToolTipText("Enables more detailed logging");
 
-				// ---- lwjglLabel ----
+				//---- lwjglLabel ----
 				lwjglLabel.setText("Latest LWJGL:");
 				lwjglLabel.setFont(new Font("Arial", Font.PLAIN, 11));
 
-				// ---- latestLWJGL ----
+				//---- latestLWJGL ----
 				latestLWJGL.setFont(new Font("Arial", Font.PLAIN, 11));
 
-				// ---- md5Label ----
-				md5Label.setText("OFF MD5:");
+				//---- md5Label ----
+				md5Label.setText("Disable MD5:");
 				md5Label.setFont(new Font("Arial", Font.PLAIN, 11));
 
-				// ---- md5Checkbox ----
+				//---- md5Checkbox ----
 				md5Checkbox.setFont(new Font("Arial", Font.PLAIN, 11));
-				md5Checkbox.setToolTipText("Отключает проверку по MD5");
+				md5Checkbox.setToolTipText("Disables MD5 hashsum checks on the files");
 
-				// ---- buildLabel ----
-				buildLabel.setText("Билд:");
+				//---- buildLabel ----
+				buildLabel.setText("Build:");
 				buildLabel.setFont(new Font("Arial", Font.PLAIN, 11));
 
-				// ---- buildCombo ----
+				//---- buildCombo ----
 				buildCombo.setFont(new Font("Arial", Font.PLAIN, 11));
 
-				// ---- serverLabel ----
-				serverLabel.setText("Автовход на сервер:");
+				//---- serverLabel ----
+				serverLabel.setText("Direct Join:");
 				serverLabel.setFont(new Font("Arial", Font.PLAIN, 11));
 
-				// ---- directJoin ----
+				//---- directJoin ----
 				directJoin.setFont(new Font("Arial", Font.PLAIN, 11));
 
 				GroupLayout developerPaneLayout = new GroupLayout(developerPane);
 				developerPane.setLayout(developerPaneLayout);
-				developerPaneLayout
-						.setHorizontalGroup(developerPaneLayout
-								.createParallelGroup()
-								.add(developerPaneLayout
-										.createSequentialGroup()
+				developerPaneLayout.setHorizontalGroup(
+						developerPaneLayout.createParallelGroup()
+								.add(developerPaneLayout.createSequentialGroup()
 										.addContainerGap()
-										.add(developerPaneLayout
-												.createParallelGroup()
-												.add(developerPaneLayout
-														.createSequentialGroup()
+										.add(developerPaneLayout.createParallelGroup()
+												.add(developerPaneLayout.createSequentialGroup()
 														.add(DevLabel)
-														.addPreferredGap(
-																LayoutStyle.RELATED)
+														.addPreferredGap(LayoutStyle.RELATED)
 														.add(developerCode))
-												.add(developerPaneLayout
-														.createSequentialGroup()
+												.add(developerPaneLayout.createSequentialGroup()
 														.add(launcherVersionLabel)
-														.addPreferredGap(
-																LayoutStyle.RELATED)
+														.addPreferredGap(LayoutStyle.RELATED)
 														.add(launcherVersion))
-												.add(developerPaneLayout
-														.createSequentialGroup()
-														.add(serverLabel,
-																GroupLayout.DEFAULT_SIZE,
-																GroupLayout.DEFAULT_SIZE,
-																Short.MAX_VALUE)
-														.addPreferredGap(
-																LayoutStyle.RELATED)
-														.add(directJoin,
-																GroupLayout.PREFERRED_SIZE,
-																196,
-																GroupLayout.PREFERRED_SIZE))
-												.add(developerPaneLayout
-														.createSequentialGroup()
+												.add(developerPaneLayout.createSequentialGroup()
+														.add(serverLabel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+														.addPreferredGap(LayoutStyle.RELATED)
+														.add(directJoin, GroupLayout.PREFERRED_SIZE, 196, GroupLayout.PREFERRED_SIZE))
+												.add(developerPaneLayout.createSequentialGroup()
 														.add(buildLabel)
-														.addPreferredGap(
-																LayoutStyle.RELATED)
+														.addPreferredGap(LayoutStyle.RELATED)
 														.add(buildCombo))
-												.add(developerPaneLayout
-														.createSequentialGroup()
-														.add(developerPaneLayout
-																.createParallelGroup()
-																.add(developerPaneLayout
-																		.createSequentialGroup()
-																		.add(developerPaneLayout
-																				.createParallelGroup()
+												.add(developerPaneLayout.createSequentialGroup()
+														.add(developerPaneLayout.createParallelGroup()
+																.add(developerPaneLayout.createSequentialGroup()
+																		.add(developerPaneLayout.createParallelGroup()
 																				.add(debugLabel)
-																				.add(lwjglLabel,
-																						GroupLayout.PREFERRED_SIZE,
-																						77,
-																						GroupLayout.PREFERRED_SIZE))
-																		.addPreferredGap(
-																				LayoutStyle.RELATED)
-																		.add(developerPaneLayout
-																				.createParallelGroup()
+																				.add(lwjglLabel, GroupLayout.PREFERRED_SIZE, 77, GroupLayout.PREFERRED_SIZE))
+																		.addPreferredGap(LayoutStyle.RELATED)
+																		.add(developerPaneLayout.createParallelGroup()
 																				.add(latestLWJGL)
 																				.add(debugMode)))
-																.add(developerPaneLayout
-																		.createSequentialGroup()
-																		.add(md5Label,
-																				GroupLayout.PREFERRED_SIZE,
-																				77,
-																				GroupLayout.PREFERRED_SIZE)
-																		.addPreferredGap(
-																				LayoutStyle.RELATED)
+																.add(developerPaneLayout.createSequentialGroup()
+																		.add(md5Label, GroupLayout.PREFERRED_SIZE, 77, GroupLayout.PREFERRED_SIZE)
+																		.addPreferredGap(LayoutStyle.RELATED)
 																		.add(md5Checkbox)))
-														.add(0, 0,
-																Short.MAX_VALUE)))
-										.addContainerGap()));
-				developerPaneLayout.setVerticalGroup(developerPaneLayout
-						.createParallelGroup()
-						.add(developerPaneLayout
-								.createSequentialGroup()
-								.addContainerGap()
-								.add(developerPaneLayout
-										.createParallelGroup(
-												GroupLayout.BASELINE)
-										.add(DevLabel)
-										.add(developerCode,
-												GroupLayout.PREFERRED_SIZE,
-												GroupLayout.DEFAULT_SIZE,
-												GroupLayout.PREFERRED_SIZE))
-								.addPreferredGap(LayoutStyle.RELATED)
-								.add(developerPaneLayout
-										.createParallelGroup(
-												GroupLayout.BASELINE)
-										.add(launcherVersionLabel)
-										.add(launcherVersion,
-												GroupLayout.PREFERRED_SIZE,
-												GroupLayout.DEFAULT_SIZE,
-												GroupLayout.PREFERRED_SIZE))
-								.addPreferredGap(LayoutStyle.RELATED)
-								.add(developerPaneLayout
-										.createParallelGroup(
-												GroupLayout.BASELINE)
-										.add(buildCombo,
-												GroupLayout.PREFERRED_SIZE,
-												GroupLayout.DEFAULT_SIZE,
-												GroupLayout.PREFERRED_SIZE)
-										.add(buildLabel))
-								.addPreferredGap(LayoutStyle.RELATED)
-								.add(developerPaneLayout
-										.createParallelGroup()
-										.add(debugMode)
-										.add(debugLabel,
-												GroupLayout.PREFERRED_SIZE, 21,
-												GroupLayout.PREFERRED_SIZE))
-								.addPreferredGap(LayoutStyle.RELATED)
-								.add(developerPaneLayout
-										.createParallelGroup(
-												GroupLayout.TRAILING)
-										.add(lwjglLabel,
-												GroupLayout.PREFERRED_SIZE, 21,
-												GroupLayout.PREFERRED_SIZE)
-										.add(latestLWJGL))
-								.addPreferredGap(LayoutStyle.RELATED)
-								.add(developerPaneLayout
-										.createParallelGroup(
-												GroupLayout.TRAILING)
-										.add(md5Label,
-												GroupLayout.PREFERRED_SIZE, 21,
-												GroupLayout.PREFERRED_SIZE)
-										.add(md5Checkbox))
-								.addPreferredGap(LayoutStyle.RELATED)
-								.add(developerPaneLayout
-										.createParallelGroup(
-												GroupLayout.BASELINE)
-										.add(serverLabel,
-												GroupLayout.PREFERRED_SIZE, 21,
-												GroupLayout.PREFERRED_SIZE)
-										.add(directJoin,
-												GroupLayout.PREFERRED_SIZE,
-												GroupLayout.DEFAULT_SIZE,
-												GroupLayout.PREFERRED_SIZE))
-								.addContainerGap(5, Short.MAX_VALUE)));
+														.add(0, 0, Short.MAX_VALUE)))
+										.addContainerGap())
+				);
+				developerPaneLayout.setVerticalGroup(
+						developerPaneLayout.createParallelGroup()
+								.add(developerPaneLayout.createSequentialGroup()
+										.addContainerGap()
+										.add(developerPaneLayout.createParallelGroup(GroupLayout.BASELINE)
+												.add(DevLabel)
+												.add(developerCode, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+										.addPreferredGap(LayoutStyle.RELATED)
+										.add(developerPaneLayout.createParallelGroup(GroupLayout.BASELINE)
+												.add(launcherVersionLabel)
+												.add(launcherVersion, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+										.addPreferredGap(LayoutStyle.RELATED)
+										.add(developerPaneLayout.createParallelGroup(GroupLayout.BASELINE)
+												.add(buildCombo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+												.add(buildLabel))
+										.addPreferredGap(LayoutStyle.RELATED)
+										.add(developerPaneLayout.createParallelGroup()
+												.add(debugMode)
+												.add(debugLabel, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE))
+										.addPreferredGap(LayoutStyle.RELATED)
+										.add(developerPaneLayout.createParallelGroup(GroupLayout.TRAILING)
+												.add(lwjglLabel, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE)
+												.add(latestLWJGL))
+										.addPreferredGap(LayoutStyle.RELATED)
+										.add(developerPaneLayout.createParallelGroup(GroupLayout.TRAILING)
+												.add(md5Label, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE)
+												.add(md5Checkbox))
+										.addPreferredGap(LayoutStyle.RELATED)
+										.add(developerPaneLayout.createParallelGroup(GroupLayout.BASELINE)
+												.add(serverLabel, GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE)
+												.add(directJoin, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+										.addContainerGap(5, Short.MAX_VALUE))
+				);
 			}
-			mainOptions.addTab("Разработчикам", developerPane);
+			mainOptions.addTab("Developer", developerPane);
 		}
 
-		// ---- resetButton ----
-		resetButton.setText("Сбросить");
+		//---- logsButton ----
+		logsButton.setText("Logs");
 
-		// ---- cancelButton ----
-		cancelButton.setText("Отменить");
+		//---- resetButton ----
+		resetButton.setText("Reset");
 
-		// ---- saveButton ----
+		//---- cancelButton ----
+		cancelButton.setText("Cancel");
+
+		//---- saveButton ----
 		saveButton.setText("OK");
 
 		GroupLayout contentPaneLayout = new GroupLayout(contentPane);
 		contentPane.setLayout(contentPaneLayout);
-		contentPaneLayout.setHorizontalGroup(contentPaneLayout
-				.createParallelGroup()
-				.add(contentPaneLayout
-						.createSequentialGroup()
-						.addContainerGap()
-						.add(resetButton)
-						.addPreferredGap(LayoutStyle.RELATED)
-						.add(cancelButton)
-						.addPreferredGap(LayoutStyle.UNRELATED)
-						.add(saveButton, GroupLayout.DEFAULT_SIZE, 55,
-								Short.MAX_VALUE).add(11, 11, 11))
-				.add(GroupLayout.TRAILING, mainOptions,
-						GroupLayout.DEFAULT_SIZE, 0, Short.MAX_VALUE));
-		contentPaneLayout.setVerticalGroup(contentPaneLayout
-				.createParallelGroup().add(
-						contentPaneLayout
-								.createSequentialGroup()
-								.add(mainOptions, GroupLayout.DEFAULT_SIZE,
-										224, Short.MAX_VALUE)
+		contentPaneLayout.setHorizontalGroup(
+				contentPaneLayout.createParallelGroup()
+						.add(contentPaneLayout.createSequentialGroup()
+								.addContainerGap()
+								.add(resetButton)
 								.addPreferredGap(LayoutStyle.RELATED)
-								.add(contentPaneLayout
-										.createParallelGroup(
-												GroupLayout.BASELINE)
-										.add(resetButton).add(cancelButton)
-										.add(saveButton)).addContainerGap()));
+								.add(logsButton)
+								.addPreferredGap(LayoutStyle.RELATED)
+								.add(cancelButton)
+								.addPreferredGap(LayoutStyle.UNRELATED)
+								.add(saveButton, GroupLayout.DEFAULT_SIZE, 55, Short.MAX_VALUE)
+								.add(11, 11, 11))
+						.add(GroupLayout.TRAILING, mainOptions, GroupLayout.DEFAULT_SIZE, 0, Short.MAX_VALUE)
+		);
+		contentPaneLayout.setVerticalGroup(
+				contentPaneLayout.createParallelGroup()
+						.add(contentPaneLayout.createSequentialGroup()
+								.add(mainOptions, GroupLayout.DEFAULT_SIZE, 224, Short.MAX_VALUE)
+								.addPreferredGap(LayoutStyle.RELATED)
+								.add(contentPaneLayout.createParallelGroup(GroupLayout.BASELINE)
+										.add(resetButton)
+										.add(logsButton)
+										.add(cancelButton)
+										.add(saveButton))
+								.addContainerGap())
+		);
 		pack();
 		setLocationRelativeTo(getOwner());
 	}

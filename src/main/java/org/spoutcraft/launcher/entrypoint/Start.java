@@ -1,7 +1,7 @@
 /*
  * This file is part of Spoutcraft.
  *
- * Copyright (c) 2011-2012, SpoutDev <http://www.spout.org/>
+ * Copyright (c) 2011-2012, Spout LLC <http://www.spout.org/>
  * Spoutcraft is licensed under the SpoutDev License Version 1.
  *
  * Spoutcraft is free software: you can redistribute it and/or modify
@@ -26,19 +26,22 @@
  */
 package org.spoutcraft.launcher.entrypoint;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
-
 import javax.swing.UIManager;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.codehaus.jackson.map.ObjectMapper;
+
 import org.spoutcraft.launcher.Settings;
 import org.spoutcraft.launcher.exceptions.RestfulAPIException;
+import org.spoutcraft.launcher.rest.Project;
 import org.spoutcraft.launcher.rest.RestAPI;
 import org.spoutcraft.launcher.util.Download;
 import org.spoutcraft.launcher.util.DownloadListener;
@@ -47,16 +50,19 @@ import org.spoutcraft.launcher.util.Utils;
 import org.spoutcraft.launcher.yml.YAMLProcessor;
 
 public class Start {
-	// private static final ObjectMapper mapper = new ObjectMapper();
+	private static final ObjectMapper mapper = new ObjectMapper();
 
 	public static void main(String[] args) {
 		try {
-			launch(args);
+			System.out.println("Entering main...");
+			SpoutcraftLauncher.main(args);
+			// launch(args);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private static void launch(String[] args) throws Exception {
 		// Text for local build (not official build)
 		if (SpoutcraftLauncher.getLauncherBuild().equals("0")) {
@@ -145,24 +151,19 @@ public class Start {
 	}
 
 	public static int getLatestLauncherBuild() throws RestfulAPIException {
-		// String url = RestAPI.getLauncherURL(Settings.getLauncherChannel());
-		// InputStream stream = null;
+		String url = RestAPI.getLauncherURL(Settings.getLauncherChannel());
+		InputStream stream = null;
 		try {
-			// URLConnection conn = (new URL(url)).openConnection();
-			// stream = conn.getInputStream();
-			// Project project = mapper.readValue(stream, Project.class);
-			// return project.getBuild();
-			return Integer
-					.parseInt(new BufferedReader(
-							new InputStreamReader(
-									new URL(
-											"https://raw.github.com/asn007/cracked_spout/master/version")
-											.openStream())).readLine());
+			URLConnection conn = (new URL(url)).openConnection();
+			stream = conn.getInputStream();
+			Project project = mapper.readValue(stream, Project.class);
+			return project.getBuild();
 		} catch (IOException e) {
-			throw new RestfulAPIException("Error accessing URL [" + "]", e);
-		} // finally {
-			// IOUtils.closeQuietly(stream);
-			// }
+			throw new RestfulAPIException("Error accessing URL [" + url + "]",
+					e);
+		} finally {
+			IOUtils.closeQuietly(stream);
+		}
 	}
 
 	private static void migrateFolders() {

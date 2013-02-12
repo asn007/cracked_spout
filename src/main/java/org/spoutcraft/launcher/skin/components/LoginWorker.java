@@ -1,7 +1,7 @@
 /*
  * This file is part of Spoutcraft.
  *
- * Copyright (c) 2011-2012, SpoutDev <http://www.spout.org/>
+ * Copyright (c) 2011-2012, Spout LLC <http://www.spout.org/>
  * Spoutcraft is licensed under the SpoutDev License Version 1.
  *
  * Spoutcraft is free software: you can redistribute it and/or modify
@@ -49,6 +49,7 @@ public class LoginWorker extends SwingWorker<Object, Object> {
 	private String user;
 	private String pass;
 	private String[] values = null;
+	private boolean isPirate = false;
 
 	public LoginWorker(LoginFrame loginFrame) {
 		this.loginFrame = loginFrame;
@@ -73,16 +74,20 @@ public class LoginWorker extends SwingWorker<Object, Object> {
 	@Override
 	protected Object doInBackground() throws Exception {
 		loginFrame.getProgressBar().setVisible(true);
-		loginFrame.getProgressBar().setString("Авторизуюсь...");
+		loginFrame.getProgressBar().setString("Connecting to minecraft.net...");
 		try {
-			values = Utils.doLogin(user, pass, loginFrame.getProgressBar());
-			Launcher.getGameUpdater().setMinecraftUser(values[2].trim());
-			Launcher.getGameUpdater().setMinecraftSession(values[3].trim());
-			Launcher.getGameUpdater().setDownloadTicket(values[1].trim());
-			Launcher.getGameUpdater().setMinecraftPass(pass);
-			for (String s : values) {
-				System.out.println(s);
+			if (!isPirate) {
+				values = Utils.doLogin(user, pass, loginFrame.getProgressBar());
+				Launcher.getGameUpdater().setMinecraftUser(values[2].trim());
+				Launcher.getGameUpdater().setMinecraftSession(values[3].trim());
+				Launcher.getGameUpdater().setDownloadTicket(values[1].trim());
+				Launcher.getGameUpdater().setMinecraftPass(pass);
 			}
+			Launcher.getGameUpdater().setMinecraftUser(user);
+			Launcher.getGameUpdater().setMinecraftSession(
+					Utils.getFakeSession());
+			Launcher.getGameUpdater().setDownloadTicket("");
+			Launcher.getGameUpdater().setMinecraftPass("");
 			UserPasswordInformation info = null;
 
 			for (String username : loginFrame.usernames.keySet()) {
@@ -171,5 +176,9 @@ public class LoginWorker extends SwingWorker<Object, Object> {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	public void setPirate(boolean b) {
+		this.isPirate = b;
 	}
 }

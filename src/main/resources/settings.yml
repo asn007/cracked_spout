@@ -52,9 +52,8 @@ client:
     replaceBlocks: false
     replaceTools: false
     resizeScreenshots: false
-    resizedScreenshotHeight: 3200
-    resizedScreenshotWidth: 6000
-    shaderType: 0
+    resizedScreenshotHeight: 1920
+    resizedScreenshotWidth: 1080
     showChatColors: true
     showDamageAlerts: true
     showJoinMessages: true
